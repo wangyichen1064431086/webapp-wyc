@@ -245,7 +245,7 @@ gulp.task('copy', ['build'], function () {
 
 gulp.task('ga', function () {
     getUrltoFile('http://m.ftchinese.com/index.php/jsapi/analytics', './app/log/ga.js');
-    getUrltoFile('http://m.ftchinese.com/index.php/jsapi/analytics', './dist/log/ga.js');
+    //getUrltoFile('http://m.ftchinese.com/index.php/jsapi/analytics', './dist/log/ga.js');
 });
 
 
@@ -371,7 +371,7 @@ gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
 gulp.task('serve', ['styles', 'scripts', 'fonts'], () => {
   browserSync({
     notify: false,
-    port: 9000,
+    port: 8000,
     server: {
       baseDir: ['.tmp', 'app'],
       routes: {

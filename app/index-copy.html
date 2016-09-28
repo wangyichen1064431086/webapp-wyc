@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>Web App</title>
+<meta content="FT中文网智能手机HTML 5应用" name="description"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+<link rel="apple-touch-icon-precomposed" href="http://s.ftimg.net/img/ipad_icon.png"/>
+<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+<style>
+* { margin:0; padding:0;}
+html,body,.fullbody,#storyScroller,#homeScroller,#channelScroller,#fullbody,#storyview,#channelview,#adview {height:100%;min-height:100%;overflow:hidden;margin:0;padding:0;box-sizing:border-box;}
+html,body {font:16px 'Helvetica Neue',Helvetica,Arial,"Hiragino Sans GB","WenQuanYi Micro Hei","Heiti SC",STHeiti,SimSun,sans-serif;margin:0 auto;padding:0;width:100%;display:block;text-align:center;background:#002F5F;-webkit-text-size-adjust:none;}
+div {text-align:left;line-height:140%;}
+img,input {border:medium none;}
+img,video{max-width:100%;}
+ul,li {list-style-position:outside;list-style-type:none;margin:0;padding:0;}
+a:link,a:visited,a:active,a.unvisited:link, a.unvisited:visited,.unvisited:link,.unvisited:visited,#ft-login-slign-in-link{color:#000;text-decoration:none;cursor:pointer;}
+a:hover, a:active,.section a:link,.section a:visited,#bodytext a:link,#bodytext a.story,#bodytext a.link {color:#2e6e9e;text-decoration:none;}
+a {cursor:pointer;}
+i {font-weight:bold;font-style:normal;}
+#screenstart,.night .opening{background-color:#002F5F;position:absolute;top:0;left:0;width:100%;height:100%;z-index:6000;box-sizing:border-box;}
+#screenstart.opening span p.booklead,#screenstart .backuplinks a,.night .opening span p.booklead,.night .backuplinks a {color:#FFF;}
+#screenstart.opening span p.booklead a, .night .opening span p.booklead a {font-weight:bold;color:#FFF;}
+#screenstart .progresscontainer, .night .progresscontainer{-webkit-box-shadow: 0 0 1px black;background-color: #002F5F;background-size: 22px;border: 1px inset #214A74;}
+#screenstart .progressbg{width:5%;}
+#screenstart .backuplinks {position:absolute;left:0;bottom:20px;width:100%;height:30px;line-height:30px;text-align:center;color:#FFF;-ms-animation-duration: 6s;-ms-animation-iteration-count: 1;-ms-animation-name:delayed-fade-in;-webkit-animation-duration: 6s;-webkit-animation-iteration-count: 1;-webkit-animation-name:delayed-fade-in;font-size:1.0625em;}
+.opening {display:table;width:100%;height:100%;background:#FFF1E0;margin:0 auto;min-width:320px;}
+.opening span{display:table-cell;vertical-align:middle;text-align:center;font-weight:bold;}
+.opening span p.booklead{font-size:1.3125em;font-weight:normal;color:#777;margin:30px auo;padding: 0 14px;}
+.progresscontainer{width:43.9453%;min-width:266px;margin:30px auto;
+-webkit-border-radius: 3px;
+-webkit-box-shadow: inset 0 0 5px #C8B9A6;
+background: #F5E5D0;
+border-bottom: 1px solid white;
+border-radius: 3px;
+box-shadow: inset 0 0 5px #C8B9A6;
+padding: 2px;
+position: relative;
+overflow:hidden;
+}
+.progressbar{
+-moz-border-radius: 2px;
+-webkit-border-radius: 2px;
+background-size: 11px;
+border-radius: 2px;
+width:0;
+}
+.progressbg {
+-webkit-background-clip: content-box;
+-webkit-border-radius: 3px;
+background-clip: content-box;
+border: 1px solid #1F5E95;
+border-radius: 3px;
+display: block;
+height: 9px;
+margin: 10px auo;
+background-color: #24A7FF;
+background-image: -webkit-linear-gradient(-45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%, transparent 75%, transparent);
+background-image: -ms-linear-gradient(-45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.2) 75%, transparent 75%, transparent);
+background-image: linear-gradient(135deg, rgba(255,255,255,0.2) 25%,transparent 25%,transparent 50%,rgba(255,255,255,0.2) 50%,rgba(255,255,255,0.2) 75%,transparent 75%,transparent);
+background-size: 9px 100%;
+}
+.uses3d {
+-ms-backface-visibility: hidden;
+-webkit-backface-visibility: hidden;
+}
+#loadstatus{
+font-size:1.0625em;
+}
+#screenstart #bookname {color:white;font-size:32px;display:inline-block;line-height:161.8%;font-family:georgia;font-weight:normal;}
+#loadNow{display:inline;}
+</style>
+<script>
+function handleLogoError(){
+    document.getElementById("bookname").innerHTML='FINANCIAL TIMES';
+}
+function commonProblem() {
+    if (/iphone/i.test(uaForMail) || /ip[ao]d/i.test(uaForMail)) {
+        document.getElementById("bookname").innerHTML='';
+        document.getElementById("startstatus").innerHTML='<div style="font-size:0.8em;padding:10px;">亲爱的读者，现在您似乎连接不上我们的服务器，如果您确定您的手机网络正常，请尝试一下我们的备用服务器，方法如下：<br>1. 用iPhone上的Safari打开<br><a href=http://app001.ftmailbox.com/phone.html target=_blank style="font-size:0.9em;">http://app001.ftmailbox.com/phone.html</a><br>2. 点击Safari程序下方的分享按钮，将新的应用添加到您的主屏幕上<br><br><a href="mailto:ftchinese.feedback@gmail.com?subject=Feedback about FTC Web App - from start screen&body=%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0AMy UA String for Your Reference: %0D%0A%0D%0A'+uaForMail+'%0D%0A%0D%0AResources version: '+window._currentVersion+'%0D%0A%0D%0AScreen Mode: '+screen.width+'X'+screen.height+'%0D%0A%0D%0Amy URL: ' + location.href +'">如问题仍未解决，请点击此处发邮件至ftchinese.feedback@gmail.com，我们会尽一切能力解决您的问题。</a></div>';
+    }
+}
+</script>
+<!-- build:css phone/s.css -->
+<link rel="stylesheet" href="styles/main.css">
+<!-- endbuild -->
+</head>
+<body class="fullbody">
+<div id="screenstart" class="opening" ontouchmove="event.preventDefault();">
+	<span><font id="bookname"><img onerror='handleLogoError()' src="phone/img/FTC-start.png" width="266" height="210"></font>
+	<p class="booklead" id="startstatus">
+		<span id="loadNow">正在连接服务器</span>
+	</p>
+	<div class="progresscontainer">
+		<div id="startbar" class="progressbar standardprogressbar uses3d progressbg structureprogress">
+		</div>
+	</div>
+	<p class="booklead" id="loadstatus">
+		&nbsp;
+	</p>
+	</span>
+	<div class="backuplinks">
+		<a onclick="javascript:window.location.reload()">重新加载</a> &nbsp; <a href="http://m.ftchinese.com/">手机网站</a> &nbsp; <a id="startFeedback" href="mailto:ftchinese.feedback@gmail.com?subject=Feedback about FTC Web App - from start screen" onclick="commonProblem();">报告问题</a>
+	</div>
+</div>
+<div id="fullbodycontainer">
+	<div id="fullbody">
+		<div id="homeScroller">
+			<div class="navContainer">
+				<div class="navleftcontainer" onclick="sectionScroller.scrollBy(-$(window).width(), 0,300);return false;">
+					<div class="subleftbg">
+					</div>
+				</div>
+				<div class="navrightcontainer" onclick="sectionScroller.scrollBy($(window).width(), 0,300);return false;">
+					<div class="subrightbg">
+					</div>
+				</div>
+				<div class="navigationScroller">
+					<ul class="navigation">
+						<li class="home" onclick="backhome()">首页</li>
+						<li class="channel china" url="/index.php/ft/channel/phonetemplate.html?channel=china">中国</li>
+						<li class="channel global" url="/index.php/ft/channel/phonetemplate.html?channel=global">全球</li>
+						<li class="channel opinion" url="/index.php/ft/channel/phonetemplate.html?channel=opinion">观点</li>
+						<li class="channel column" url="/index.php/ft/channel/phonetemplate.html?channel=column">专栏</li>
+						<li class="channel economy" url="/index.php/ft/channel/phonetemplate.html?channel=economy">经济</li>
+						<li class="channel markets" url="/index.php/ft/channel/phonetemplate.html?channel=markets">金融市场</li>
+						<li class="channel business" url="/index.php/ft/channel/phonetemplate.html?channel=business">商业</li>
+						<li class="channel business" url="/index.php/ft/channel/phonetemplate.html?channel=innovation">创新经济</li>
+						<li class="channel management" url="/index.php/ft/channel/phonetemplate.html?channel=management">管理</li>
+						<li class="channel lifestyle" url="/index.php/ft/channel/phonetemplate.html?channel=lifestyle">生活时尚</li>
+						<li class="channel photo" url="/index.php/ft/channel/phonetemplate.html?channel=video">视频</li>
+						<li class="channel" url="/index.php/ft/channel/phonetemplate.html?channel=specialreport">特别报导</li>
+						<li class="channel management" url="/index.php/ft/channel/phonetemplate.html?channel=datanews">数据新闻</li>
+						<li class="channel vd" url="/index.php/ft/channel/phonetemplate.html?channel=photo">图辑</li>
+						<li class="channel vd" url="/index.php/ft/channel/phonetemplate.html?channel=newsquiz">互动小测</li>
+						<li class="channel vd" url="/index.php/ft/channel/phonetemplate.html?channel=speedread">金融英语速读</li>
+						<li class="channel markets" url="/index.php/ft/channel/phonetemplate.html?channel=fti">FT研究院</li>
+						<li class="channel hotstory" url="/index.php/ft/channel/phonetemplate.html?channel=month">热门文章</li>
+						<li class="channel clip require-log-in" url="/index.php/users/favstorylist?i=2">我的收藏</li>
+					</ul>
+				</div>
+			</div>
+			<div id="homecontent">
+			</div>
+			<div id="o-connection-status">
+			</div>
+			<div class="copyright" onclick="showConnectionStatus()">
+				<b>&copy; 英国金融时报</b> 有限公司 2016&nbsp;&nbsp;
+				<span><acronym title="Financial Times">FT中文网</acronym>为英国金融时报的注册商标</span>
+			</div>
+		</div>
+	</div>
+	<!--story view start-->
+	<div id="storyview" class="fullbodyView">
+		<div id="storyScroller">
+			<div class="adiframe banner" type="50" frame="ad300">
+			</div>
+			<div class="layout-a_region-3">
+				<div class="inner">
+					<div class="storycontainer container">
+						<div class="storycolumn">
+							<div class="storydate dateStamp">
+							</div>
+							<div class="storytitle title">
+							</div>
+							<div class="story-actions story_info">
+								<a id="shareButton" class="floatright left-margin icon-action icon-share" onclick="shareArticle()"></a>
+								<a class="floatright left-margin icon-action icon-clip" onclick="openClip()"></a>
+								<a class="floatright left-margin icon-action icon-font-size" onclick="setFontSize()"></a>
+								<button class="chbutton storyOnly" onclick="displaystory(readingid,'ch')">中文</button>
+								<button class="enbutton storyOnly" onclick="displaystory(readingid,'en')">英文</button>
+								<button class="cebutton storyOnly" onclick="displaystory(readingid,'ce')">中英</button>
+								<div class="clearfloat">
+								</div>
+							</div>
+							<div class="storybyline">
+							</div>
+							<div class="storybody cbody" id="bodytext">
+							</div>
+						</div>
+					</div>
+					<div class="clearfloat">
+					</div>
+					<div class="adiframe banner" type="50" frame="banner-bottom-story">
+					</div>
+					<div class="clearfloat">
+					</div>
+					<div class="mobile-screen">
+						<div id="columnintro">
+						</div>
+						<div class="storymore">
+						</div>
+					</div>
+					<div class="section readerCommentTitle">
+						读者评论
+					</div>
+					<div id="logincomment">
+						<form id="storyForm">
+							<div class="comment-input-container">
+								<div class="container">
+									<div style="margin:5px 0;">
+										FT中文网欢迎读者发表评论，部分评论会被选进《读者有话说》栏目。我们保留编辑与出版的权利。
+									</div>
+									<textarea name="Talk" id="Talk" class="commentTextArea" width="100%" rows="3"></textarea>
+									<span style="display:none">
+									<input name="use_nickname" type="hidden" id="name" onclick="unuseit(this);"/>
+									<label for="name" style="display:none">匿名</label>
+									<input name="use_nickname" type="radio" id="userid" value="0" onclick="useit(this);" checked/>
+									<input type="text" autocorrect="off" class="user_id textinput" name="NickName" id="nick_name" value=""/>
+									</span>
+									<input type="button" value="提交评论" class="comment_btn submitbutton button ui-light-btn" id="addnewcomment"/>
+									<input type="hidden" name="storyid" id="cstoryid" value=""/>
+								</div>
+							</div>
+						</form>
+					</div>
+					<div id="nologincomment">
+						<div class="container">
+							<div class="username-label">
+								用户名
+							</div>
+							<input type="text" autocorrect="off" name="username" id="username1" class="user_id textinput user-name"/>
+							<div class="password-label">
+								密码
+							</div>
+							<input type="password" name="password" class="user_id textinput password" id="password1"/>
+							<input type="submit" value="登录后发表评论" class="comment_btn submitbutton button ui-light-btn" onclick="login(1)"/>
+							<div class="topmargin statusmsg">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="layout-a_region-4">
+				<div class="inner">
+					<div class="scroll-content">
+						<div id="columnintro1" class="middle-screen">
+						</div>
+						<div class="adiframe halfpage" type="600" frame="ad300x600">
+						</div>
+					</div>
+					<div class="fixed-content">
+						<div class="middle-screen">
+							<div class="storymore">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="clearfloat">
+			</div>
+		</div>
+		<div id="storyviewRail" class="right-rail-fix">
+			<div class="layout-a_region-4">
+				<div class="inner">
+					<div class="storymore">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--story view end-->
+	<!--ad iframe view start-->
+	<div id="adview">
+		<div>
+			<iframe id="adiframe">
+			</iframe>
+		</div>
+	</div>
+	<!-- ad iframe view end -->
+	<!-- channel view start -->
+	<div id="channelview" class="fullbodyView">
+	</div>
+	<!-- channel view end -->
+	<div id="head">
+		<div class="header">
+			<div class="logo">
+				<img src="data:image/png;base64,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" height="30">
+			</div>
+			<div class="header-title" id="header-title">
+			</div>
+			<div class="header-side left homeOnly" onclick="switchNavOverlay()">
+				<i class="ft-icon-sections"></i>
+			</div>
+			<div class="header-side right channelOnly" onclick="switchNavOverlay()">
+				<i class="ft-icon-sections"></i>
+			</div>
+			<div class="header-side right homeOnly" onclick="openSearch()">
+				<i class="ft-icon-search"></i>
+			</div>
+			<div class="header-side left storyOnly channelOnly adOnly backbutton">
+				<i class="ft-icon-back-arrow"></i>
+			</div>
+			<div id="shareButton2" class="header-side right storyOnly" onclick="shareArticle()">
+				<i class="ft-icon-share"></i>
+			</div>
+			<div class="clearfloat">
+			</div>
+		</div>
+	</div>
+	<div id="contentRail">
+		<div class="-bg-checkered">
+			<div id="toolRail">
+				<div class="nutmeg-content">
+					<div class="nutmeg-content_left">
+						<button class="homeOnly channel" url="/index.php/ft/channel/phonetemplate.html?channel=english"><i class="ft-icon ft-icon-language"></i><span>每日英语</span></button>
+						<button class="homeOnly channel" url="/index.php/ft/channel/phonetemplate.html?channel=ftacademy"><i class="ft-icon ft-icon-school"></i><span>FT商学院</span></button>
+						<button class="homeOnly" onclick="myFT()"><i class="ft-icon ft-icon-profile"></i><span>我的FT</span></button>
+						<button class="homeOnly floatright" onclick="turnonOverlay('setting')" aria-label="Settings"><i class="ft-icon-setting"></i><span>设置</span></button>
+						<button id="refreshButton" class="homeOnly floatright" onclick="refresh()"><i class="ft-icon-refresh"></i><span>刷新</span></button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="imageRail">
+			<div id="imageRailInner">
+			</div>
+		</div>
+	</div>
+	<!-- 以下为主页面的一些弹窗 -- wyc mark-->
+	<!-- 1.设置字体大小的弹窗 wyc mark-->
+	<div id="fontsetting" class="overlay">
+		<div class="overlayBG">
+		</div>
+		<div class="inner">
+			<div class="cell">
+				<div class="settingbox">
+					<div class="overlay-header">
+						<div class="nutmeg-content_right rightmargin">
+							<button onclick="closeFontSize()" aria-label="Settings">确定</button>
+						</div>
+						设置字号
+					</div>
+					<div class="fontpreferences overlay-content">
+						<div id="extra-small" class="extra-small">
+							最小<span class="tickbg"></span>
+						</div>
+						<div id="small" class="small">
+							小<span class="tickbg"></span>
+						</div>
+						<div id="medium" class="medium">
+							适中<span class="tickbg"></span>
+						</div>
+						<div id="big" class="big">
+							大<span class="tickbg"></span>
+						</div>
+						<div id="extra-big" class="extra-big">
+							特大<span class="tickbg"></span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 2.点击右下角“设置”弹出的主弹窗 “设置与帮助” -- wyc mark-->
+	<div id="setting" class="overlay">
+		<div class="overlayBG">
+		</div>
+		<div class="inner">
+			<div class="cell">
+				<div class="settingbox">
+					<div class="overlay-header">
+						<div class="nutmeg-content_right rightmargin">
+							<button onclick="closeOverlay()" class="overlay_close-btn" aria-label="Settings"></button>
+						</div>
+						设置与帮助
+					</div>
+					<div class="nightreading">
+						<strong>夜间模式</strong>
+						<span class="displayvalue" onclick="switchNightReading()">
+						<span class="ui-toggle">
+						<span class="ui-toggle-button"></span>
+						<span class="ui-toggle-label ui-toggle-label-on">开</span>
+						<span class="ui-toggle-label ui-toggle-label-off">关</span>
+						</span>
+						</span>
+					</div>
+					<div class="fontSelect" onclick="setFontSize()">
+						<div id="currentFont">
+							默认
+						</div>
+						<strong>字号大小</strong>
+					</div>
+					<div class="standalonebutton">
+						<button class="ui-light-btn" onclick="turnonOverlay('loginBox')">登录</button>
+					</div>
+					<div class="standalonebutton">
+						<button class="ui-light-btn channel" url="/index.php/ft/channel/phonetemplate.html?channel=myftsetup">设置我的<font class="english">FT</font></button>
+					</div>
+					<div class="standalonebutton nativeButton">
+						<a href="https://itunes.apple.com/cn/app/ft-zhong-wen-wang-zhi-neng/id443870811?mt=8" target="_blank"><button class="ui-light-btn">到<span class="english">App Store</span>上推荐这个应用</button></a>
+					</div>
+					<div class="standalonebutton">
+						<button class="ui-light-btn channel" url="/index.php/ft/channel/phonetemplate.html?channel=help">帮助与反馈</button>
+					</div>
+					<div class="currentVersion" id="storytotalnum">
+					</div>
+					<div id="testMessage">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 3. 点击右上角搜索标志弹出的搜索弹框 wyc mark-->
+	<div id="searchArticle" class="overlay">
+		<div class="overlayBG">
+		</div>
+		<div class="inner">
+			<div class="cell">
+				<div class="settingbox">
+					<div class="overlay-header">
+						<div class="nutmeg-content_right rightmargin">
+							<button onclick="closeOverlay()" class="overlay_close-btn" aria-label="Settings"></button>
+						</div>
+						查找文章
+					</div>
+					<div class="padding">
+						<input type="text" name="keys" id="searchtxt" class="searchtxt commentTextArea">
+						<input class="ui-light-btn button" type="button" onclick="search('searchtxt')" value="查找">
+						<div id="savedSearch">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- 查看最新文章弹窗：start--> <!-- 不知道这个弹窗是点击哪里可以弹出来-->
+	<div id="introOverlay" class="overlay">
+		<div class="overlayBG">
+		</div>
+		<div class="inner">
+			<div class="cell">
+				<div class="settingbox">
+					<div class="overlay-header">
+						<div class="nutmeg-content_right rightmargin">
+							<button onclick="closeOverlay()" class="overlay_close-btn" aria-label="Settings"></button>
+						</div>
+						<p id="introTitle">
+						</p>
+					</div>
+					<div id="introScroller">
+						<div class="padding" id="introContent">
+						</div>
+						<div class="standalonebutton last-child">
+							<button class="ui-light-btn channel" id="checkColumn">查看最新文章</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 查看最新文章弹窗：end-->
+
+	<!-- 添加到主屏幕弹窗:start --><!-- 说明：进入主页面后首先弹出这个 -->
+	<div id="addHome" class="overlay">
+		<div class="overlayBG">
+		</div>
+		<div class="inner">
+			<div class="cell">
+				<div class="settingbox">
+					<div class="overlay-header">
+						<div class="nutmeg-content_right rightmargin">
+							<button onclick="closeOverlay()" class="overlay_close-btn" aria-label="Settings"></button>
+						</div>
+						<p>
+							添加到主屏幕
+						</p>
+					</div>
+					<div class="padding">
+						<div class="centerButton">
+							将FT中文网图标添加到您的iPhone主屏幕上，方便离线浏览：
+						</div>
+						<br>
+						<div class="centerButton">
+							<img src="phone/img/ios-share-button.png" height="50">
+						</div>
+						<div class="centerButton">
+							1. 点击Safari底部的分享按钮
+						</div>
+						<br>
+						<div class="centerButton">
+							<img src="phone/img/add-to-homescreen-button.png" height="90">
+						</div>
+						<div class="centerButton">
+							2. 点击“添加到主屏幕”
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 添加到主屏幕弹窗:end -->
+
+	<!-- 下载原生应用弹窗；start --><!-- 疑问：好像是没用了，也不知道它是点击哪里后弹出来的 -->
+	<div id="downloadNative" class="overlay">
+		<div class="overlayBG">
+		</div>
+		<div class="inner">
+			<div class="cell">
+				<div class="settingbox">
+					<div class="overlay-header">
+						<div class="nutmeg-content_right rightmargin">
+							<button onclick="closeOverlay()" class="overlay_close-btn" aria-label="Settings"></button>
+						</div>
+						<p>
+							下载原生应用
+						</p>
+					</div>
+					<div class="padding">
+						<div class="centerButton">
+							下载FT中文网的原生应用，方便离线浏览：
+						</div>
+						<br>
+						<div class="centerButton">
+							<a href="http://app.ftchinese.com/d.html?utm_source=marketing&utm_medium=campaign&utm_campaign=WEBAPP1">1. 立即点击此处下载</a>
+						</div>
+						<br>
+						<div class="centerButton" onclick="closeOverlay()">
+							2. 先看看这个Web App
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 下载原生应用弹窗；end -->
+
+    <!-- 手机版本过低提示弹窗：start --><!-- 是在什么条件下弹出？待研究 -->
+	<div id="yourDevice" class="overlay">
+		<div class="overlayBG">
+		</div>
+		<div class="inner">
+			<div class="cell">
+				<div class="settingbox">
+					<div class="overlay-header">
+						<div class="nutmeg-content_right rightmargin">
+							<button onclick="closeOverlay()" class="overlay_close-btn" aria-label="Settings"></button>
+						</div>
+						<p>
+							小提示
+						</p>
+					</div>
+					<div class="padding">
+						<div class="centerButton">
+							亲爱的读者，您的手机系统版本偏低。如果使用这个应用的体验比较卡，请尝试用其他方式来阅读FT中文网。
+						</div>
+						<div class="centerButton">
+							<button class="ui-light-btn channel" onclick="location.href='/m/index.html'">旧版本的应用程序</button>
+						</div>
+						<div class="centerButton">
+							<button class="ui-light-btn channel" onclick="location.href='http://m.ftchinese.com/'">FT中文网手机站</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 手机版本过低提示弹窗：end -->
+	
+	<!-- 离线存储被关闭后的提醒弹窗:start -->
+	<div id="storageSetting" class="overlay">
+		<div class="overlayBG">
+		</div>
+		<div class="inner">
+			<div class="cell">
+				<div class="settingbox">
+					<div class="overlay-header">
+						<div class="nutmeg-content_right rightmargin">
+							<button onclick="closeOverlay()" class="overlay_close-btn" aria-label="Settings"></button>
+						</div>
+						<p>
+							重要提示
+						</p>
+					</div>
+					<div class="padding note">
+						<p>
+							亲爱的读者，您似乎关闭了设备的Cookie和离线存储功能，这会导致您无法登录，也无法利用本地存储来节省您的时间和流量。
+						</p>
+						<p>
+							如果您是使用iPhone或iPad，可以进入<b>设置>Safari>阻止Cookie</b>，选择“来自第三方和广告商”或“永不”均可。
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 离线存储被关闭后的提醒弹窗:end -->
+
+	<!-- 观看视频弹窗：start -->
+	<div id="watchVideo" class="overlay">
+		<div class="overlayBG">
+		</div>
+		<div class="inner">
+			<div class="cell">
+				<div class="settingbox">
+					<div class="overlay-header">
+						<div class="nutmeg-content_right rightmargin">
+							<button onclick="shareArticle();" id="video-share"><i class="ft-icon-share"></i></button>
+							<button onclick="closeOverlay()" class="overlay_close-btn" aria-label="Settings"></button>
+						</div>
+						<p>
+						</p>
+					</div>
+					<div class="o-responsive-video-container">
+						<div class="o-responsive-video-wrapper-outer">
+							<div id="videoContent" class="o-responsive-video-wrapper-inner">
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 观看视频弹窗：end -->
+
+	<div id="slideShow" class="overlay">
+	</div>
+	<div id="pop-ad" class="overlay">
+	</div>
+
+	<!-- 登录与注册弹窗：start -->
+	<div id="loginBox" class="overlay">
+		<div class="overlayBG">
+		</div>
+		<div class="inner">
+			<div class="cell">
+				<div class="settingbox">
+					<div class="overlay-header">
+						<div class="nutmeg-content_right rightmargin">
+							<button onclick="closeOverlay()" class="overlay_close-btn" aria-label="Settings"></button>
+						</div>
+						用户登录与注册
+					</div>
+					<div class="padding notLogged">
+						<div>
+							用户名/电子邮件
+						</div>
+						<input type="text" autocorrect="off" name="username" id="username" class="user_id textinput"/>
+						<div>
+							密码
+						</div>
+						<input type="password" name="password" class="user_id textinput password" id="password"/>
+						<div class="centerButton">
+							<input type="submit" value="登录" class="comment_btn submitbutton button ui-light-btn" onclick="login()"/>
+						</div>
+						<div class="statusmsg">
+						</div>
+						<div class="centerButton">
+							<button class="ui-light-btn" onclick='showchannel("/index.php/users/register?i=2","新用户注册");'>免费注册</button>
+						</div>
+					</div>
+					<div class="padding logged">
+						<div>
+							欢迎您，<span class="user_Name"></span>
+						</div>
+						<div class="centerButton">
+							<button class="ui-light-btn" onclick='logout()'>登出</button>
+						</div>
+						<div class="statusmsg">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 登录与注册弹窗：end -->
+
+	<!-- 剪报弹窗：start -->
+	<div id="clipStory" class="overlay">
+		<div class="overlayBG">
+		</div>
+		<div class="inner">
+			<div class="cell">
+				<div class="settingbox">
+					<div class="overlay-header">
+						<div class="nutmeg-content_right rightmargin">
+							<button onclick="closeOverlay()" class="overlay_close-btn" aria-label="Settings"></button>
+						</div>
+						收藏本文
+					</div>
+					<div class="padding notLogged">
+						您需要先登录或注册才能收藏文章
+						<div>
+							用户名/电子邮件
+						</div>
+						<input type="text" autocorrect="off" name="username" id="username5" class="user_id textinput"/>
+						<div>
+							密码
+						</div>
+						<input type="password" name="password" class="user_id textinput password" id="password5"/>
+						<div class="centerButton">
+							<input type="submit" value="登录" class="comment_btn submitbutton button ui-light-btn" onclick="login(5)"/>
+						</div>
+						<div class="statusmsg">
+						</div>
+						<div class="centerButton">
+							<button class="ui-light-btn" onclick='showchannel("/index.php/users/register?i=2","新用户注册");'>免费注册</button>
+						</div>
+					</div>
+					<div class="padding logged">
+						<div class="centerButton" id="clipButton">
+							<button class="ui-light-btn" onclick='clipStory();'>收藏本文</button>
+						</div>
+						<div id="addfavlink">
+						</div>
+						<div class="centerButton">
+							<button class="ui-light-btn channel" url="/index.php/users/favstorylist?i=2">查看收藏</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 剪报弹窗：end -->
+    
+    <!-- 文章分享弹窗：start-->
+	<div id="shareStory" class="overlay close-self-only">
+		<div class="overlayBG">
+		</div>
+		<div class="inner">
+			<div class="cell">
+				<div class="settingbox">
+					<div class="overlay-header">
+						<div class="nutmeg-content_right rightmargin">
+							<button onclick="closeShareArticle()" class="overlay_close-btn" aria-label="Settings"></button>
+						</div>
+						分享
+					</div>
+					<div id="shareScroller">
+						<div class="standalonebutton">
+							<a class="button ui-light-btn" id="shareEmail" target="_blank" onclick="ga('send','event', 'PhoneApp', 'Share', 'Email');">电子邮件</a>
+						</div>
+						<div class="standalonebutton">
+							<a class="button ui-light-btn" id="shareSina" onclick="turnonOverlay('shareWeiboChoose');" target="_blank">新浪微博</a>
+						</div>
+						<div class="standalonebutton">
+							<a class="button ui-light-btn" id="shareWeChat" onclick="turnonOverlay('shareMobileOverlay');$('#openWeChat').hide();$('#shareMobile').focus();">微信</a>
+						</div>
+						<div class="standalonebutton">
+							<a class="button ui-light-btn" id="shareQQ" target="_blank">腾讯微博</a>
+						</div>
+						<div class="standalonebutton">
+							<a class="button ui-light-btn" id="shareLinkedIn" target="_blank"><span class="english">LinkedIn</span></a>
+						</div>
+						<div class="standalonebutton">
+							<a class="button ui-light-btn" id="shareFacebook" target="_blank"><span class="english">FACEBOOK</span></a>
+						</div>
+						<div class="standalonebutton">
+							<a class="button ui-light-btn" id="shareTwitter" target="_blank"><span class="english">TWITTER</span></a>
+						</div>
+						<div class="standalonebutton">
+							<a class="button ui-light-btn" id="shareRenren" target="_blank">人人网</a>
+						</div>
+						<div class="padding">
+							<div>
+								复制到手机上其他客户端
+							</div>
+							<textarea class="commentTextArea paste" rows="6" type="text" id="shareSocial" value=""></textarea>
+							<div>
+								复制文章网址
+							</div>
+							<input class="commentTextArea paste" type="text" id="shareURL" value="">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 文章分享弹窗：end -->
+
+	<!-- 分享到微信弹窗:start -->
+	<div id="shareMobileOverlay" class="overlay">
+		<div class="overlayBG">
+		</div>
+		<div class="inner">
+			<div class="cell">
+				<div class="settingbox">
+					<div class="overlay-header">
+						<div class="nutmeg-content_right rightmargin">
+							<button onclick="closeOverlay()" class="overlay_close-btn" aria-label="Settings"></button>
+						</div>
+						分享到微信
+					</div>
+					<div id="webappWeixin">
+						<div class="padding">
+							<div>
+								1. 全选并复制下方文字
+							</div>
+							<textarea class="commentTextArea paste" rows="3" type="text" id="shareMobile"></textarea>
+						</div>
+						<div class="standalonebutton last-child">
+							<a class="button ui-light-btn" href="weixin://" id="openWeChat">2. 打开微信客户端并粘贴</a>
+						</div>
+					</div>
+					<div id="nativeWeixin" style="display:none;">
+						<div class="standalonebutton">
+							<a class="button ui-light-btn" id="shareChat" onclick="closeOverlay();ga('send','event', 'PhoneApp', 'Share', 'WeChatFriend');">微信好友</a>
+						</div>
+						<div class="standalonebutton">
+							<a class="button ui-light-btn" id="shareMoment" onclick="closeOverlay();ga('send','event', 'PhoneApp', 'Share', 'WeChatCircle');">微信朋友圈</a>
+						</div>
+						<div class="standalonebutton last-child">
+							<a class="button ui-light-btn" id="shareFav" onclick="closeOverlay();ga('send','event', 'PhoneApp', 'Share', 'WeChatFav');">微信收藏</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 分享到微信弹窗:end -->
+
+	<!-- 分享到新浪微博弹窗之“打开客户端分享”按钮的弹窗:start -->
+	<div id="shareWeiboOverlay" class="overlay">
+		<div class="overlayBG">
+		</div>
+		<div class="inner">
+			<div class="cell">
+				<div class="settingbox">
+					<div class="overlay-header">
+						<div class="nutmeg-content_right rightmargin">
+							<button onclick="closeOverlay()" class="overlay_close-btn" aria-label="Settings"></button>
+						</div>
+						分享到新浪微博
+					</div>
+					<div class="padding">
+						<div>
+							1. 全选并复制下方文字
+						</div>
+						<textarea class="commentTextArea paste" rows="4" type="text" id="shareSinaWeibo"></textarea>
+					</div>
+					<div class="standalonebutton last-child">
+						<a class="button ui-light-btn" href="weibo://" id="openWeibo">2. 打开微博客户端并粘贴</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 分享到新浪微博弹窗之“打开客户端分享”按钮的弹窗:start -->
+
+	<!-- 分享到新浪微博弹窗：start -->
+	<div id="shareWeiboChoose" class="overlay">
+		<div class="overlayBG">
+		</div>
+		<div class="inner">
+			<div class="cell">
+				<div class="settingbox">
+					<div class="overlay-header">
+						<div class="nutmeg-content_right rightmargin">
+							<button onclick="closeOverlay()" class="overlay_close-btn" aria-label="Settings"></button>
+						</div>
+						分享到新浪微博
+					</div>
+					<div class="standalonebutton">
+						<button class="ui-light-btn" onclick="turnonOverlay('shareWeiboOverlay');$('#shareSinaWeibo').focus();ga('send','event', 'PhoneApp', 'Share', 'WeiboClient');">打开客户端分享</button>
+					</div>
+					<div class="standalonebutton last-child">
+						<a onclick="ga('send','event', 'PhoneApp', 'Share', 'WeiboPage');" class="button ui-light-btn" id="shareSinaWeb" target="_blank">通过网页分享</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 分享到新浪微博弹窗：end -->
+
+	<!-- “提示”弹窗：start -->
+	<div id="popup" class="overlay always-on">
+		<div class="overlayBG">
+		</div>
+		<div class="inner">
+			<div class="cell">
+				<div class="settingbox">
+					<div class="overlay-header">
+						<div id="popup-title">
+							提示
+						</div>
+					</div>
+					<div id="popup-description" class="padding">
+					</div>
+					<div id="popup-content">
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- “提示”弹窗：start -->
+
+	<!-- 文章左侧“回退”按钮:start -->
+	<div id="remindBack" onclick="histback()">
+		<span class="ft-icon-back-arrow ft-icon"></span>&nbsp;点击文章左侧回退
+	</div>
+	<!-- 文章左侧“回退”按钮:end -->
+
+	<!-- 首页左侧滑出的导航菜单：start-->
+	<div id="navOverlay" class="overlay">
+		<ul class="navList" id="navList">
+			<li class="first-child home" onclick="backhome()">首页</li>
+			<li class="channel china" url="/index.php/ft/channel/phonetemplate.html?channel=china">中国</li>
+			<li class="channel global" url="/index.php/ft/channel/phonetemplate.html?channel=global">全球</li>
+			<li class="channel opinion" url="/index.php/ft/channel/phonetemplate.html?channel=opinion">观点</li>
+			<li class="channel column" url="/index.php/ft/channel/phonetemplate.html?channel=column">专栏</li>
+			<li class="channel economy" url="/index.php/ft/channel/phonetemplate.html?channel=economy">经济</li>
+			<li class="channel markets" url="/index.php/ft/channel/phonetemplate.html?channel=markets">金融市场</li>
+			<li class="channel business" url="/index.php/ft/channel/phonetemplate.html?channel=business">商业</li>
+			<li class="channel innovation" url="/index.php/ft/channel/phonetemplate.html?channel=innovation">创新经济</li>
+			<li class="channel management" url="/index.php/ft/channel/phonetemplate.html?channel=management">管理</li>
+			<li class="channel lifestyle" url="/index.php/ft/channel/phonetemplate.html?channel=lifestyle">生活时尚</li>
+			<li class="channel vd" url="/index.php/ft/channel/phonetemplate.html?channel=video">视频</li>
+			<li class="channel specialreport" url="/index.php/ft/channel/phonetemplate.html?channel=specialreport">特别报导</li>
+			<li class="channel markets" url="/index.php/ft/channel/phonetemplate.html?channel=datanews">数据新闻</li>
+			<li class="channel photo" url="/index.php/ft/channel/phonetemplate.html?channel=photo">图辑</li>
+			<li class="channel quiz" url="/index.php/ft/channel/phonetemplate.html?channel=newsquiz">互动小测</li>
+			<li class="channel speedread" url="/index.php/ft/channel/phonetemplate.html?channel=speedread">金融英语速读</li>
+			<li class="channel research" url="/index.php/ft/channel/phonetemplate.html?channel=fti">FT研究院</li>
+			<li class="channel hotstory" url="/index.php/ft/channel/phonetemplate.html?channel=speedread">热门文章</li>
+			<li class="channel clip require-log-in" url="/index.php/users/favstorylist?i=2">我的收藏</li>
+		</ul>
+	</div>
+	<!-- 首页左侧滑出的导航菜单：start-->
+
+	<div id="tip" class="tip"><!-- 不知道这个div是干嘛的-->
+	</div>
+</div>
+</body>
+<!-- Google Analytics -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','/log/ga.js','ga');
+ga('create', 'UA-1608715-1');ga('require', 'displayfeatures');
+ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+<!-- FTC Analytics -->
+<script>
+(function(i,s,o,g,r,a,m){i['FtcAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o), 
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','/log/analytics.js','fa');
+fa('create','UA-XXXX-Y',{'alwaysSendReferrer':true});fa('send','pageview');
+</script>
+<!-- End FTC Analytics -->
+<script>
+    var uaForMail=navigator.userAgent || navigator.vendor || "";
+    uaForMail=uaForMail+"%0D%0A%0D%0Amy URL: " + location.href;
+    function updateStartStatus(startMessage) {
+    	document.getElementById("startFeedback").href="mailto:ftchinese.feedback@gmail.com?subject=Feedback about FTC Web App - ' +  + '&body=%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0AMy UA String for Your Reference: %0D%0A%0D%0A"+uaForMail+"%0D%0A%0D%0AResources version: "+window._currentVersion+"%0D%0A%0D%0AScreen Mode: "+screen.width+"X"+screen.height+"%0D%0A%0D%0Amy URL: " + location.href;
+    }
+    updateStartStatus('JS not loaded');
+    setTimeout (function() {
+        if (document.getElementById("loadNow")) {
+            document.getElementById("loadNow").innerHTML="无法成功连接，请检查您的网络连接";
+        }
+    },8000);
+    setTimeout (function() {
+        if (document.getElementById("loadNow") && navigator && navigator.onLine!=false) {
+            document.getElementById("loadNow").innerHTML='点这里切换到备用服务器试试<br>如果长期连接不上服务器，可尝试先删除程序再重新下载';
+            var backupHost;
+            if (location.host=="m.ftchinese.com") {
+                backupHost="http://app001.ftmailbox.com";
+            } else if (location.host=="app001.ftchinese.com") {
+                backupHost="http://app002.ftmailbox.com";
+            } else if (location.host=="app002.ftchinese.com") {
+                backupHost="http://app003.ftmailbox.com";
+            } else if (location.host=="app003.ftchinese.com") {
+                backupHost="http://app004.ftmailbox.com";
+            } else if (location.host=="app004.ftchinese.com") {
+                backupHost="http://app005.ftmailbox.com";
+            } else if (location.host=="app005.ftchinese.com") {
+                backupHost="http://m.ftchinese.com";
+            } else if (location.host=="m.corp.ftchinese.com") {
+                backupHost="http://m.ftchinese.com";
+            } else {
+                backupHost="http://m.ftchinese.com";
+            }
+            var backupUrl;
+            if (location.href.indexOf("phoneapp")>=0) {
+                backupUrl="phoneapp.html";
+            } else {
+                backupUrl="phone.html";
+            }
+            document.getElementById("loadNow").addEventListener("click",function(){
+                window.location.href=backupHost+"/"+backupUrl;
+            });
+        }
+    },12000);
+</script>
+<script>
+    try {
+        var cacheStatusValues = [ 'uncached',
+                                  'idle',
+                                  'checking',
+                                  'downloading',
+                                  'undateready',
+                                  'obsolete'],
+            cacheListening = [    'cached',
+                                  'checking',
+                                  'downloading',
+                                  'error',
+                                  'noupdate',
+                                  'obsolete',
+                                  'progress',
+                                  'updateready'],
+            cache = window.applicationCache;
+        window.applicationCache.addEventListener('updateready', function() {
+            window.applicationCache.swapCache();
+            console.log('swap cache has been called');
+        }, false);
+        setTimeout(function() { if(cache && navigator.online==true) cache.update();},10000);
+    }
+    catch(e) {
+    }
+</script>
+<script type="text/javascript">window.scrollTo(0, 0);</script>
+<script type="text/javascript">
+    var FTAdch = "NP_Home";
+    function checkJS(jsName,jsUrl,runJS) {
+        if (localStorage && localStorage.getItem(jsName)) {
+            if (runJS==true) {eval(localStorage.getItem(jsName));runJS=false;}
+        }
+        if(window.jQuery && navigator && navigator.onLine != false){
+            $.get(jsUrl+"?"+theMinute,function(data){
+                if (runJS==true){eval(data);}
+                localStorage.removeItem(jsName);
+                localStorage.setItem(jsName,data);
+            });
+        }
+    }
+</script>
+<!-- build:js phone/m.js -->
+<!-- bower:js -->
+<script type="text/javascript" src="../bower_components/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="phone/html5storage.js"></script>
+<script type="text/javascript" src="phone/tracking.js"></script>
+<script src="../bower_components/fastclick/lib/fastclick.js"></script>
+<script src="../bower_components/ftscroller/lib/ftscroller.js"></script>
+<script type="text/javascript" src="scripts/main.js"></script>
+<!-- endbower -->
+<!-- endbuild -->
+<script type="text/javascript">
+    if (document.getElementById("startbar")) {
+        document.getElementById("startbar").style.width="25%";
+    }
+    if (typeof osVersion === 'undefined') {
+        ga('send','event', 'CatchError', 'JS Load Failure', window.location.href);
+    } else if (osVersion.indexOf("Android2")<0) {
+        new FastClick(document.body);
+    }
+</script>
+<!--
+name="baidu-tc-cerfication" data-appid="4880050" src="http://apps.bdimg.com/cloudaapi/lightapp.js"
+-->
+</html>
