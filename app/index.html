@@ -79,16 +79,12 @@
 	<!-- 外链css。说明：本行本来写在下面一部分script的下面，挪到这里应该更好-->
 	<link rel="stylesheet" href="styles/main.css">
 
-    <script type="text/javascript" src="phone/inner.js"></script><!-- 我自己加的 -->
-	<!-- 直接嵌入的script,待细研究-->
+    
 	<script>
 		//把这里的function handleLogoError 先放到了inner.js中
-		function commonProblem() {
-		    if (/iphone/i.test(uaForMail) || /ip[ao]d/i.test(uaForMail)) {
-		        document.getElementById("bookname").innerHTML='';
-		        document.getElementById("startstatus").innerHTML='<div style="font-size:0.8em;padding:10px;">亲爱的读者，现在您似乎连接不上我们的服务器，如果您确定您的手机网络正常，请尝试一下我们的备用服务器，方法如下：<br>1. 用iPhone上的Safari打开<br><a href=http://app001.ftmailbox.com/phone.html target=_blank style="font-size:0.9em;">http://app001.ftmailbox.com/phone.html</a><br>2. 点击Safari程序下方的分享按钮，将新的应用添加到您的主屏幕上<br><br><a href="mailto:ftchinese.feedback@gmail.com?subject=Feedback about FTC Web App - from start screen&body=%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0AMy UA String for Your Reference: %0D%0A%0D%0A'+uaForMail+'%0D%0A%0D%0AResources version: '+window._currentVersion+'%0D%0A%0D%0AScreen Mode: '+screen.width+'X'+screen.height+'%0D%0A%0D%0Amy URL: ' + location.href +'">如问题仍未解决，请点击此处发邮件至ftchinese.feedback@gmail.com，我们会尽一切能力解决您的问题。</a></div>';
-		    }
-		}
+
+		//把这里的function commonProblem 也放到了inner.js中。
+		//疑问：这里会依赖全局变量uaForMail,故定义在定义uaForMail之前不是没有任何意义吗？原为中uaForMail定义在本html文末的script标签中。
 	</script>
 
 	
@@ -119,13 +115,13 @@
 	<!-- ga:end--><!--ga的先略-->
 
 	<!-- 启动页面 start -->
-	<div id="screenstart" style="display:none;" class="opening" ontouchmove="event.preventDefault();"><!--此处暂时用display:none把前面的开机页面隐藏起来-->
+	<div id="screenstart" style="" class="opening" ontouchmove="event.preventDefault();"><!--此处暂时用display:none把前面的开机页面隐藏起来-->
 
 		<!-- 中间图标那一块 start -->
 		<span>
 			<!--这就是一个图标的png,不懂为何要用font标签，font本身也不被赞成使用-->
 			<font id="bookname">
-				<img onerror="handleLogoError()" src="phone/img/FTC-start.png" width="266" height="210">
+				<img onerror="handleLogoError()" src="phone/img/FTC-start.png" width="266" height="210">			
 			</font>
 		
 			<!-- “正在连接服务器”-->
@@ -151,7 +147,7 @@
 
 		<!-- 最下方三个连接那一条 start-->
 		<div class="backuplinks">
-			<a onclick="javascript:window.location.reload()">
+			<a onclick="window.location.reload()">
 				重新加载
 			</a>
 			&nbsp;
@@ -159,7 +155,7 @@
 				手机网站
 			</a>
 			&nbsp;
-			<a id="startFeedback" href="mailto:ftchinese.feedback@gmail.com?subject=Feedback about FTC Web App - from start screen" onclick="commonProblem();">
+			<a id="startFeedback" href="mailto:ftchinese.feedback@gmail.com?subject=Feedback about FTC Web App - from start screen" onclick="commonProblem()">
 				报告问题
 			</a>
 		</div>
@@ -1246,6 +1242,7 @@
 
     <!-- 外部导入script:start-->
 	<script type="text/javascript" src="../bower_components/jquery/dist/jquery.min.js"></script><!-- 导入jQuery-->
+	<script type="text/javascript" src="phone/inner.js"></script><!-- 我自己加的 --><!-- 因为其中代码已用到jQuery的东西，故只能放在jquery.min.js文件的后面 -->
 	<script type="text/javascript" src="phone/html5storage.js"></script><!-- 该文件定义了一个全局变量：ipadstorage，暂不清楚该文件是干嘛的-->
 	<script type="text/javascript" src="scripts/main.js"></script>
 	<!-- 外部导入script:end--><!-- 疑问：不明白webapp为何要把导入的scripts部分写到</body>和</html>之间???-->
