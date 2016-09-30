@@ -91,29 +91,6 @@
 </head>
 
 <body class="fullbody">
-   
-    <!-- ga:start-->
-	<!-- Google Analytics:start -->
-	<script>
-		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-		})(window,document,'script','/log/ga.js','ga');
-		ga('create', 'UA-1608715-1');ga('require', 'displayfeatures');
-		ga('send', 'pageview');
-	</script>
-	<!-- Google Analytics:end -->
-	<!-- FTC Analytics:start -->
-	<script>
-		(function(i,s,o,g,r,a,m){i['FtcAnalyticsObject']=r;i[r]=i[r]||function(){
-		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o), 
-		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-		})(window,document,'script','/log/analytics.js','fa');
-		fa('create','UA-XXXX-Y',{'alwaysSendReferrer':true});fa('send','pageview');
-	</script>
-	<!-- FTC Analytics:end -->
-	<!-- ga:end--><!--ga的先略-->
-
 	<!-- 启动页面 start -->
 	<div id="screenstart" style="" class="opening" ontouchmove="event.preventDefault();"><!--此处暂时用display:none把前面的开机页面隐藏起来-->
 
@@ -1243,7 +1220,11 @@
     <!-- 外部导入script:start-->
 	<script type="text/javascript" src="../bower_components/jquery/dist/jquery.min.js"></script><!-- 导入jQuery-->
 	<script type="text/javascript" src="phone/inner.js"></script><!-- 我自己加的 --><!-- 因为其中代码已用到jQuery的东西，故只能放在jquery.min.js文件的后面 -->
-	<script type="text/javascript" src="phone/html5storage.js"></script><!-- 该文件定义了一个全局变量：ipadstorage，暂不清楚该文件是干嘛的-->
+
+	<script type="text/javascript" src="phone/html5storage.js"></script><!-- 该文件定义了一个全局变量：ipadstorage，暂不清楚该文件是干嘛的。待研究-->
+
+	<script type="text/javascript" src="phone/tracking.js"></script><!-- 待研究 -->
+
 	<script type="text/javascript" src="scripts/main.js"></script>
 	<!-- 外部导入script:end--><!-- 疑问：不明白webapp为何要把导入的scripts部分写到</body>和</html>之间???-->
 </body>

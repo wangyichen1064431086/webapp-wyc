@@ -34,8 +34,15 @@ function commonProblem(){
 
 ///Google Analysis
 //---完全不懂，ga的后面专门来研究，从ga文档开始看起
-/*
-(funciton(i,s,o,g,r,a,m){
+
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','/log/ga.js','ga');
+		ga('create', 'UA-1608715-1');ga('require', 'displayfeatures');
+		ga('send', 'pageview');
+
+(function(i,s,o,g,r,a,m){
 	i['GoogleAnalyticsObject']=r;
 	i[r]=i[r]||function(){
 		(i[r].q=i[r].q||[]).push(arguments)
@@ -49,7 +56,7 @@ function commonProblem(){
 })(window,document,'script','/log/analytics.js','fa');//看不懂这是什么写法？？？
 fa('create','UA-XXXX-Y',{'alwaysSendReferrer':true});
 fa('send','pageview');
-*/
+
 
 ////定义函数updateStartStatus
 ///功能：修改启动页面“报告问题”a元素的href,即修改打开的邮箱
@@ -118,7 +125,7 @@ setTimeout(function(){
 },12000);
 
 
-///似乎是用于处理缓存的---暂略，用法待研究
+////似乎是用于处理缓存的---暂略，用法待研究
 try{
 	var cacheStatusValues=["uncached","idle","checking","downloading","undateready","obsolete"],
 		cacheListening=["cached","checking","downloading","error","noupdate","obsolete","progress","updateready"],
@@ -175,3 +182,5 @@ function checkJS(jsName,jsUrl,runJS){
 		});
 	}
 }
+
+////
