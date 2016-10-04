@@ -71,81 +71,29 @@ var gHotStory ='/index.php/jsapi/hotstory/1days?';
 var gWebRoot = '';
 
 ////执行：在本地测试
-	if (window.location.hostname === 'localhost' || window.location.hostname.indexOf('192.168') === 0 || window.location.hostname.indexOf('10.113') === 0 || window.location.hostname.indexOf('127.0') === 0) {//本机服务器地址的几种形式吧？
-		///在本地测试的话就直接使用本地api下的已经通过gulpfile.js的任务ea准备好了的几个json文件
-	    gApiUrl.a10001 = 'api/ea001.json';
-	    gApiUrl.a10003 = 'api/ea003.json';
-	    gApiUrl.a10007 = 'api/ea007.json';
-	    gApiUrl.aBackUp = 'api/ea001-backup.json';
+if (window.location.hostname === 'localhost' || window.location.hostname.indexOf('192.168') === 0 || window.location.hostname.indexOf('10.113') === 0 || window.location.hostname.indexOf('127.0') === 0) {//本机服务器地址的几种形式吧？
+	///在本地测试的话就直接使用本地api下的已经通过gulpfile.js的任务ea准备好了的几个json文件
+    gApiUrl.a10001 = 'api/ea001.json';
+    gApiUrl.a10003 = 'api/ea003.json';
+    gApiUrl.a10007 = 'api/ea007.json';
+    gApiUrl.aBackUp = 'api/ea001-backup.json';
 
-	    gPostMethod = 'GET';//gPostMethod由"POST"变为"GET"
+    gPostMethod = 'GET';//gPostMethod由"POST"变为"GET"
 
-		///在本地测试的话这几个文件也使用本地路径
-	    gHomePageVideo = 'api/homepagevideo.tpl?';
-	    gSkyZ = 'api/skyZ.tpl?';
-	    giPadVideo = 'api/ipadvideo.tpl?';
-	    gGetLastUpdateTime = 'api/get_last_updatetime.json?';
-	    gHotStory = 'api/hotstory.json?';
+	///在本地测试的话这几个文件也使用本地路径
+    gHomePageVideo = 'api/homepagevideo.tpl?';
+    gSkyZ = 'api/skyZ.tpl?';
+    giPadVideo = 'api/ipadvideo.tpl?';
+    gGetLastUpdateTime = 'api/get_last_updatetime.json?';
+    gHotStory = 'api/hotstory.json?';
 
-	    gWebRoot = 'http://m.ftchinese.com';
-	    if (screenWidth >= 700) {
-	        gStartPageTemplate = 'api/homecontentwide.html?';
-	    } else {
-	        gStartPageTemplate = 'api/homecontent.html?';
-	    }
-	}
-
-
-
-////定义：函数updateTimeStamp: 
-///功能：用于更新时间戳。具体更新的变量有：
-// 此刻的时间——themi:20160819153600
-// 此刻的日期——thed:20160819
-// 此刻的秒数——thisdayunix:1474271020 (当前时间的秒数的整数值————by 四舍五入处理 当前时间的毫秒数/1000）
-// 到期时刻的秒数——expiredayunix:1474271020+7776000(到期时间=当前时间+3个月的时间) 3600\*24\*90=7776000
-/// 依赖关系说明：单一功能小函数
-//全局变量——thisday、themi、 thed、 thisdayunix、 actionTimeStamp
-function updateTimeStamp() {
-    thisday = new Date();
-
-    themi = thisday.getHours() * 10000 + thisday.getMinutes() * 100;//eg:153600即15：36
-		
-    thed = thisday.getFullYear() * 10000 + thisday.getMonth() * 100 + thisday.getDate();//eg:20160819
-    
-	themi=thed*1000000+themi;//eg:20160819153600
-
-    thisdayunix = Math.round(thisday.getTime() / 1000);//eg:Math.round(474271019744/1000)=1474271020
-
-    expiredayunix = thisdayunix + 7776000;//3个月以后的时间
-
-    actionTimeStamp=Math.round(thisday.getTime() / 1000);
-}
-/// 知识说明
-//关于时间方法：
-// getTime()返回表示日期的毫秒数
-// getHours()返回日期中的小时数：0~23
-// getMinutes()返回日期中的分钟数：0~59
-// getFullYear()返回四位数年份
-// getMonth()返回日期中的月份:0~11
-// getDate()返回日期月份中的天数：1~31
-// Math.round()四舍五入为整数
-
-
-
-////定义：函数getpvalue(theurl, thep)：
-///功能：获取指定url（theurl）中的指定参数名(thep)的参数值。
-///参数:
-// theurl:一个url字符串
-// thep:url中后面接的一个参数的名称
-///返回：该url中参数名的参数值
-function getpvalue(theurl, thep) {
-    var k,thev;
-    if (theurl.toLowerCase().indexOf(thep + "=")>1) {
-        k = theurl.toLowerCase().indexOf(thep) + thep.length + 1;//被查询参数的参数值的起始位置
-        thev = theurl.toLowerCase().substring(k,theurl.length);//截取参数值起始位置到最后的字符串，也可以直接 .substring(k)
-        thev = thev.replace(/\&.*/g,"");//将该参数值后面&及其后的部分全部去掉，即得到该参数值
+    gWebRoot = 'http://m.ftchinese.com';
+    if (screenWidth >= 700) {
+        gStartPageTemplate = 'api/homecontentwide.html?';
     } else {
-        thev = "";
+        gStartPageTemplate = 'api/homecontent.html?';
     }
-    return thev;
 }
+
+
+
