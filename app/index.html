@@ -111,7 +111,7 @@
 			<!-- 加载的进度条-->
 			<div class="progresscontainer">
 				<div id="startbar" class="progressbar standardprogressbar uses3d progressbg structureprogress">
-				</div><!-- 这里其是怎样动态变化的，后面研究-->
+				</div><!-- 这里其是怎样动态变化的，在函数loadHomePage中-->
 			</div>
 
 			<!-- 一条高度为27px的空白 -->
@@ -741,7 +741,7 @@
 		<!-- 添加到主屏幕弹窗:end -->
 
 		<!-- 下载原生应用弹窗；start --><!-- 疑问：不知道它是点击哪里后弹出来的 -->
-		<div id="downloadNative" class="overlay">
+		<div id="downloadingStatusNative" class="overlay">
 			<div class="overlayBG">
 			</div>
 			<div class="inner">
@@ -1225,6 +1225,9 @@
 
 	<script type="text/javascript" src="phone/tracking.js"></script><!-- 待研究 -->
 
+
+	<script type="text/javascript" src="scripts/main_variables.js"></script>
+	<script type="text/javascript" src="scripts/main_funcs.js"></script>
 	<script type="text/javascript" src="scripts/main.js"></script>
 	<!-- 外部导入script:end--><!-- 疑问：不明白webapp为何要把导入的scripts部分写到</body>和</html>之间???-->
 </body>
