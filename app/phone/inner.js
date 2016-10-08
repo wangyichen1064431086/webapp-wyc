@@ -126,6 +126,7 @@ setTimeout(function(){
 
 
 ////似乎是用于处理缓存的---暂略，用法待研究
+/*
 try{
 	var cacheStatusValues=["uncached","idle","checking","downloading","undateready","obsolete"],
 		cacheListening=["cached","checking","downloading","error","noupdate","obsolete","progress","updateready"],
@@ -150,6 +151,8 @@ try{
 	console.log(error);
 }
 //cache用法待研究
+*/
+
 
 ////执行scrollTo(0,0)
 ///功能：将页面的左上角显示在屏幕左上角

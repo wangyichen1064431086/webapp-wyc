@@ -86,6 +86,9 @@ var osVersionMore = '';
 ///功能：标识是否（1/0)使用FT的scroller组件
 var useFTScroller = 0;
 
+///功能：标识是否使用原生的CSS的scroll, 即overflow:scroll
+var nativeVerticalScroll = false;
+
 ///功能：指示设备是否支持绝对定位
 var noFixedPosition = 0;
 
@@ -135,7 +138,7 @@ var gPullRefresh=false;
 
 ////定义：全局变量gVerticalScrollopts
 ///类型：object
-///功能：存储垂直滚动条相关变量（待研究）
+///功能：存储FTScroller的垂直滚动条配置属性，为new FTScroller(,)函数的第二个参数，待研究
 var gVerticalScrollOpts = {//修改：把声明和赋值合并了
     scrollingX: false,
     bouncing:gPullRefresh,
@@ -151,13 +154,14 @@ var gVerticalScrollOpts = {//修改：把声明和赋值合并了
 ///疑问：它们具体都代表什么？
 var scrollHeight=0, scrollOverlay=0;
 var sectionScroller, 
-theScroller, 
+theScroller, //用以存储FT的scroller对象
 storyScroller, 
 channelScroller, 
-thenavScroller,
+thenavScroller,//
 shareScroller, 
 introScroller, 
-sectionScrollerX=0;
+
+sectionScrollerX=0;//其值通过sectionScroller.scrollLeft求得，即为首页顶部导航条左侧已经滚过的距离
 
 
 ////定义：时间戳相关的几个全局变量
@@ -219,8 +223,12 @@ var gHomeAPIfail;
 var readingid;
 var langmode="ch";
 var  hist = [];
+
+
 var  pageStarted=0;
 
+///功能:指示是否是点击浏览器的前进后退按钮，是的话则为1
+var _popstate=1;
 
 ///功能：把所有的Ajax requests都放在一个数组里面，如果因为网络不好，用户要求直接转到离线阅读，则立即abort所有requests
 var requests=[];
@@ -230,3 +238,6 @@ var connectInternet = 'no';
 
 ///功能：标识是否显示的是最新主页
 var gHomePageIsLatest = true; 
+
+///功能：存储给用户的提示内容
+var pmessage;

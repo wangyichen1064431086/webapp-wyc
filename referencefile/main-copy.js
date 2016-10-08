@@ -431,7 +431,7 @@ function loadFromLocalStorage(startpageStorage) {
 
 function fillContent(loadType) {
     //gStartStatus = "fillContent start";
-    var ua=navigator.userAgent || navigator.vendor || "";
+    var ua=navigator.userAgent || navigator.vendor || "";//不就是uaString
     var searchnote = '输入关键字查找文章';
     var mpdata;
     var hcdata;
@@ -765,23 +765,6 @@ function fillContent(loadType) {
     $('#fullbody,#channelview,#contentRail,#navOverlay').disableSelection();
     //gStartStatus = "fillContent end";
 
-    // 特别报导
-    // 这段代码直接放到模版里面了
-    /*
-    gSpecialAnchors = [];
-    if ($(".specialanchor").length>0) {
-        $('.specialanchor').each(function(){
-            var adId = $(this).attr('adid') || '';
-            var sTag = $(this).attr('tag') || '';
-            var sTitle = $(this).attr('title') || '';
-            gSpecialAnchors.push({
-                "tag": sTag,
-                "title": sTitle,
-                "adid": adId
-            });
-        });
-    }
-    */
 }
 
 
@@ -876,7 +859,7 @@ function freezeCheck() {
 }
 
 
-function showAppImage(ele) {
+function showAppImage(ele) {//√
     $('#' + ele + ' .image>figure>img').each(function() {
         var imgUrl = this.src || '';
         if (this.complete) {
@@ -892,7 +875,7 @@ function showAppImage(ele) {
     }); 
 }
 
-function showThisImage(ele, imgUrl) {
+function showThisImage(ele, imgUrl) {//√
  
     ele.parent().parent().addClass('imageloaded').removeClass('image').html('<img src="'+ imgUrl + '">');
 
@@ -1092,7 +1075,7 @@ function downloadStories(downloadType) {//√
     }
 }
 
-function loadToHome(data, loadType) {
+function loadToHome(data, loadType) {//√
     $('#homecontent').html(data);
     if (loadType !== undefined) {
         fillContent(loadType);
@@ -3209,7 +3192,7 @@ function reflowscroller() {
     }
 }
 
-function addHomeScroller() {
+function addHomeScroller() {//√
     if (useFTScroller===0) {return;}
     if (nativeVerticalScroll === true) {
         $('#homeScroller').css({'overflow-y': 'scroll', '-webkit-overflow-scrolling': 'touch', 'overflow-scrolling': 'touch'});
@@ -3224,7 +3207,7 @@ function addHomeScroller() {
     }
 }
 
-function homeScrollEvent() {
+function homeScrollEvent() {//√
     screenHeight = $(window).height();
     $("#fullbody .adiframe:visible:not(.loaded-in-view)").each(function(){
         var FrameID;
@@ -3265,7 +3248,7 @@ function addStoryScroller() {
 }
 
 
-function addnavScroller(theId) {
+function addnavScroller(theId) {//√
     if (nativeVerticalScroll === true) {
         $('#' + theId).css({'overflow-y': 'scroll', '-webkit-overflow-scrolling': 'touch', 'overflow-scrolling': 'touch'});
     } else if (thenavScroller === undefined && typeof window.FTScroller === "function") {
@@ -3287,7 +3270,7 @@ function addChannelScroller() {
 }
 
 
-function navScroller($currentSlide) {
+function navScroller($currentSlide) {//√
     if ($currentSlide.find(".navigationScroller").length<=0 || typeof window.FTScroller !== "function") {return;}
     var currentView=$currentSlide.attr("id"), liNumber, newPadding, liWidth;
     if (typeof sectionScroller === "object") {sectionScroller.destroy("removeElements");}
@@ -3326,7 +3309,7 @@ function navScroller($currentSlide) {
     }
 }
 
-function checkSectionScroller($currentSlide){
+function checkSectionScroller($currentSlide){//√
 	if (sectionScroller.scrollLeft>0) {
 		$currentSlide.find(".navleftcontainer").show();
 	} else {

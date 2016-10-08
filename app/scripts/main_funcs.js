@@ -351,10 +351,10 @@ function getCookie(name){
         if(end==-1){
             end=document.cookie.length;
             return decodeURIComponent(document.cookie.substring(len,end));
-        }catch(err){
-            trackErr(err,"setCookie");
-            return ""
         }
+    }catch(err){
+        trackErr(err,"setCookie");
+        return "";
     }
 }
 ///待研究：这个写法是不是太啰嗦，应该还有更好的获取cookie的写法
@@ -411,6 +411,462 @@ function getvalue(thekey){
 
 
 
+/***************界面操作*************/
+
+////定义：函数getURLParameter(url,name)
+///功能：获取指定url（eurl）中的指定参数名(name)的参数值。
+///参数:
+// url:一个url字符串
+// name:url中后面接的一个参数的名称
+///返回：该url中参数名的参数值
+///依赖关系：
+//- 依赖参数：theurl ,thep
+///疑问：这个函数getpvalue(theurl,thep)作用不是一样的吗？为何还要使用另外一种方法再定义一次？？？
+function getURLParameter(url,name){//eg:url为"http://localhost:9000/#/channel//index.php/ft/channel/phonetemplate.html?channel=column&20160625120000",name为"channel"
+    return decodeURIComponent((
+            new RegExp(
+                '[?|&]'+name+'='+'([^&;]+?)(&|#|;|$)'
+            ).exec(url)//执行exec(url)后返回的是存放匹配结果的数组,该例结果为["?channel=column&", "column", "&"]
+            ||[undefined,""]//若上述匹配结果数组为空，则使用[undefined,""]
+        )[1]//取数组中的索引1，即第二个捕获组，该例即为"column"
+        .replace(/\+/g,'%20')//将第二个捕获组的+替换成'%20'？？
+    )||null;//该例最终返回"column"
+}
+
+
+
+////定义函数startslides()
+///疑问：待研究，这个到底是控制哪的？'#channelview'下根本就没有imgslides
+function startslides(){
+    var cv=$('#channelview'),//cv是id为channelview的元素
+        lasttouch=-1,
+        thistouch,
+        sh,
+        ch,
+        k;
+
+    if(cv.find('.imgslides div').length>0){//如果$('#channeview')下具有('.imgslides div')元素
+
+        cv.find('.imgslides:first').after(//选择$('#channelview')下的第一个('.imgslides')元素,在其后面插入以下元素
+            '<div class="slidedots"></div>'
+        );
+
+        cv.find('.imgslides div').each(//对于('#channelview')下的每一个('.imgslides div')元素都执行以下函数
+            function(index){//index即为('.imgslides div')的索引数，从0开始
+                cv.find('.slidedots:first').append('<span n='+ index + '>&nbsp;&#149;&nbsp;</span>');//对于('#channelview')下的第一个('.slidedots'),向其添加一个子元素span
+            }
+        );
+
+        cv.find('.slidedots span').click(//如果点击('#channelview')下的各('.slidedots span')
+            function(){
+                cv.find('.slidedots span').removeClass('grey');//移除所有('.slidedots span')元素class'grey'
+                $(this).addClass('grey');//为当前点击的元素添加class'grey'
+                cv.find('.imgslides div').hide();//隐藏('.imgslides div')
+                cs=$(this).attr('n');//获取当前元素的属性n的值
+                cs=parseInt(cs,10);//将n值以10进制转换为数值
+                $('#channelview .imgslides div').eq(cs)//选择这种元素的第cs+1个
+                    .css('left',0)//设置left为0
+                    .fadeIn(500);//过0.5s渐渐显现出来
+            }
+        );
+
+        $('#channelview .imgslides div:first' ).show();
+        $('#channelview .slidedots span:first').addClass('grey');
+
+
+        ///手指滑动翻页效果（原有注释）
+        
+        cs=0;
+
+        ///touchmove事件
+        document.getElementById('imgslides').addEventListener('touchmove',function(e){//touchmove事件
+                thistouch=e.changedTouches[0].clientX;//对于touchmove事件而言，e.changedTouches是一系列的改变了的触摸点。此处thistouch就是touchmove发生后的第一个触摸点的横坐标
+                if(lasttouch>0){
+                    sh=$('#imgslides div').eq(cs).css('left').replace(/px/g,'');
+                    ch=thistouch-lasttouch;
+                    sh=parseInt(sh,10);
+                    k=sh+ch;
+                    $('#channelheight').html(thistouch+':'+lasttouch+':'+sh+':'+k);
+                    $('#imgslides div').eq(cs).css('left',k);
+                }
+                lasttouch=thistouch;//将当前thistouch赋值给下一次touchmove事件的lasttouch
+            },false
+        );
+
+        ///touchstart事件
+        document.getElementById('imgslides').addEventListener('touchstart',function(e){
+            lasttouch=e.changedTouches[0].clientX;
+            touchstartx=lasttouch;
+        },false);
+
+        ///touchend事件
+        document.getElementById('imgslides').addEventListener('touchend',function(e){
+            touchendx=e.changedTouches[0].clientX;
+            $('#channelheight').html(touchendx+':'+touchstartx);
+            var ls=cs;
+            if(touchendx-touchstartx<-30){
+                cs=cs+1;
+                $('#imgslides div').eq(ls).animate({
+                        left:'-999px'
+                    },500);
+            }else if(touchendx-touchstartx>30){
+                cs=cs-1;
+                $('#imgslides div').eq(ls).animate({
+                    left:'999px'
+                },500);
+            }else{
+                $('#imgslides div').eq(ls).animate({
+                    left:0
+                },500);
+            }
+            if(cs==-1){
+                cs=$('#imgslides div').length=-1;
+            }else if(cs==$('#imgslides div').length){
+                cs=0;
+            }
+            if(cs!=ls){
+                setTimeout(function(){
+                    $('#imgslides div').hide();
+                    $('#imgslides div').eq(cs).css('left',0).fadeIn(500);
+                },500);
+            }
+            $('#channelview .slidedots span').removeClass('grey');
+            $('#channelview .slidedots span').eq(cs).addClass('grey');
+
+        },false);
+    }
+}
+
+
+////定义：函数closead
+///功能：关闭广告
+///依赖关系：
+//依赖全局变量:gNowView、useFTScroller、scrollHeight、gDeviceType
+//依赖函数:httpspv、recordAction
+function closead(){
+    document.body.className=gNowView;
+    if(useFTScroller===0){
+        setTimeout(function(){
+            window.scrollTo(0,scrollHeight);
+        },10);
+    }
+    $('body').css('background','#FFF1E0');
+    $('#adiframe').attr('src','');
+
+    ///记录首页pv(原文注释)
+    /*先去掉ga追踪相关
+    httpspv(gDeviceType+'/homepage');
+    recordAction('/phone/homepage');
+    */
+}
+
+
+
+
+
+////定义：函数histback()
+///依赖关系：
+//依赖函数：closeOverlay(),backhome()
+//依赖全局变量：hist
+function histback(){
+
+}
+
+
+
+////定义：函数closeOverlay()
+///功能：关闭所有弹窗及相关处理
+///依赖关系：
+//依赖全局变量：scrollOverlay(其初始化为0)、noFixedPosition
+//依赖函数:pauseallvideo()
+function closeOverlay(){
+    pauseallvideo();//暂停所有video元素
+    $(".overlay").removeClass("on");//overlay弹窗全部移除class"on"
+    $("button.open").removeClass("open");//带有样式open的button移除样式"open"
+    if(noFixedPosition==1){//如果设备是Android1或Android2，即无fixed的position
+        window.scrollTo(0,scrollOverlay);
+        scrollOverlay=0;
+    }
+    $("#videoContent").empty();//"#videoContent"元素内的东西全部清空
+}
+
+
+
+////定义：函数turnonOverlay(theId)
+///功能：显示id为theId的弹窗
+///依赖关系：
+//依赖全局变量：scrollOverlay(其初始化为0)、noFixedPosition
+//依赖参数：theId
+function turnonOverlay(theId){
+    $(".overlay").removeClass("on");
+    $("#"+theId).addClass("on");
+
+    if(noFixedPosition==1){//疑问：这个对没有fiexed定位的设备的处理没怎么懂
+        scrollOverlay=window.pageYOffset;
+        window.scrollTo(0,0);
+    }
+}
+///说明：window.pageYOffset是window.scrollY的别名，其为document从顶部滑动过的垂直距离,单位为px
+
+
+////定义：函数shareArticle()
+///功能：分享文章按钮点击后执行
+///依赖关系：
+//依赖全局变量：noFixedPosition、shareScroller、FTScroller
+//依赖参数：theId
+function shareArticle() {
+    $("#shareStory").addClass("on");
+
+    if (noFixedPosition==1) {
+        scrollOverlay=window.pageYOffset;
+        window.scrollTo(0, 0);
+    }
+
+    if (shareScroller === undefined && typeof window.FTScroller === "function") {
+        shareScroller = new FTScroller(document.getElementById("shareScroller"), gVerticalScrollOpts);
+    }
+}
+
+
+////定义：函数closeShareArticle()
+///功能：文章分享弹窗中关闭按钮点击后执行
+///依赖关系：无
+function closeShareArticle(){
+    $("#shareStory").removeClass("on");
+}
+
+
+
+////定义：函数openClip()
+///功能：点击剪报按钮后执行
+///依赖关系：
+//依赖函数:turnonOverlay(theId)
+function openClip(){
+    turnonOverlay('clipStory');
+    $("#addfavlink").empty(''); 
+    $("#clipButton").show();
+}
+
+
+
+
+////定义：函数adclick()
+///功能：如果当前url中含有"phone.html"，将本页面中href以"open"为开头的a元素(即广告链接）的href、target属性进行处理。
+///参数: 无
+///返回：无
+///依赖关系：单一功能小函数
+// 不依赖任何其他东西
+function adclick(){
+    var lo=window.location.href.toLowerCase();
+    if(lo.indexOf('phone.html')>0){
+        $('a[href^="open"]').each(function(){
+            var thelink=$(this).attr("href");
+            thelink=thelink.replace(/openads:\/\//g,'').replace(/opensafari:\/\//g,'');
+            $(this).attr("href",thelink).attr("target","_blank");
+        })
+    }
+}
+///疑问
+//1. 当前url为什么会包含"phone.html"？——可以参见gulpfile.js中的任务copy，即有把index.html拷贝为phone.html的步骤。问题是为什么要对这种为"phone.html"的情况特殊处理？
+//2. 这里a替换后的href含有"opensafari://",这是否表明是从safari浏览器中打开这个链接？？
+
+
+
+
+////定义大函数：showchannel
+///依赖关系：
+//依赖传入参数：url,channel,requireLogin,openIniframe,channelDescription
+// 依赖全局变量：
+// 依赖函数；turnonOverlay、closeOverlay、 getURLParameter、historyAPI、httpspv、recordAction、handlelinks、addChannelScroller、navScroller、 checkLogin、updateShare、 pauseallvideo、 removeBrokenIMG
+
+
+////定义函数：gotowebapp(url)
+///功能:跳转至指定url
+///参数：url
+///返回:无
+///依赖关系：isOnline
+function gotowebapp(url) {
+    if (isOnline()=="possible") {//如果是在线状态
+        window.location.href = url;
+    } else {
+        alert('您现在处于离线状态，无法使用本功能');
+    }
+}
+
+
+
+/*************滚动处理******************/
+////定义：函数homeScrollEvent
+///功能：重新加载首页首屏部分的广告
+///依赖关系：
+//依赖全局变量:screenHeight
+function homeScrollEvent(){
+    //修改：删去对全局变量screenHeight的重新求值。$(window).heigth不就等于screen.height么？？
+
+    $("#fullbody .adiframe:visible:not(.loaded-in-view)").each(function(){//三个广告div，其内各有一个iframe
+        var FrameID;
+
+        if($(this).offset().top>=0 && $(this).offset().top<=screenHeight){//如果这个广告相对于document顶部的距离在0~screenHeight之间，则重新加载这个广告————待确认：那就是首页首屏部分的广告iframe要重新加载？？？
+            try{
+                FrameID=$(this).find("iframe").eq(0).attr("id");//FrameID即为广告iframe的id值
+                document.getElementById(FrameID).contentDocument.location.reload(true);// 重新加载iframe内容。
+            }catch(ignore){
+
+            }
+
+            $(this).addClass("loaded-in-view");
+        }
+    })
+}
+///识说明：
+//1. elem.offset()：获取元素相对于document的坐标，eg:Object {top: 2239, left: 37.5}
+//2.location.reload(true):传递参数true就是强制从服务器重新加载，没有传递true则可能从缓存加载
+
+
+
+
+////定义：函数addHomeScroller
+///功能：为主页添加垂直方向scroller,根据变量nativeVerticalScroller的值来决定使用原生scroller还是FT的scroller
+///依赖关系：
+//依赖函数：homeScrollEvent()
+//依赖全局变量：useFTScroller,nativeVerticalScroll,theScroller,gVerticalScrollOpts
+//疑问：变量useFTScroller,nativeVerticalScroll分别指示的是什么？？？
+function addHomeScroller(){
+    if(useFTScroller===0){//初始就为0
+        return;
+    }
+
+    if(nativeVerticalScroll===true){//初始为false
+        $('#homeScroller').css({//'homeScroller'是主体页面整个部分的id
+            'overflow-y':'scroll',//当内容溢出元素框时发生的事情
+            '-webkit-overflow-scrolling':'touch',
+            'overflow-scrolling':'touch'//疑问：有这个属性吗？为何只查到'-webkit-overflow-scrolling'
+        });
+        document.getElementById('homeScroller').addEventListener('scroll',function(){
+            homeScrollEvent();//重新加载首页首屏部分的广告
+        });
+    }else if(typeof theScroller !== "object"&& typeof FTScroller==="function"){//修改：原为没有条件 typeof FTScroller==="function"
+        theScroller = new FTScroller(document.getElementById("fullbody"),gVerticalScrollOpts);//创建一个FT的scroller
+        theScroller.addEventListener("scrollend",function(){
+            homeScrollEvent();
+        })
+    }
+}
+///说明：
+//-webkit-overflow-scrolling:控制触摸设备是否使用基于动量的scrolling
+
+
+
+////定义：函数addnavScroller(theId)
+///功能：给特定id的元素添加scroller,根据变量nativeVerticalScroller的值来决定使用原生scroller还是FT的scroller
+///参数:theId:要添加scroller的元素的id
+///返回：无
+///说明：和addHomeScroller写法几乎一模一样
+function addnavScroller(theId){
+    if(nativeVerticalScroll===true){
+        $('#'+theId).css({
+            'overflow-y':'scroll',
+            '-webkit-overflow-scrolling':'touch',
+            'overflow-scrolling':'touch'
+        });
+    }else if(typeof thenavScroller!=="object" && typeof window.FTScroller==="function"){//修改：原文为thenavScroller === undefined && typeof window.FTScroller === "function"
+        thenavScroller=new FTScroller(document.getElementById(theId),gVerticalScrollOpts);
+    }
+}
+
+
+////定义：函数checkSectionScroller()
+///功能：决定显示/隐藏导航菜单条左右两侧滚轮
+///参数:$currentSlide——可为$("#fullbody")
+///返回：无
+///依赖关系：
+//依赖全局变量：sectionScroller
+function checkSectionScroller($currentSlide){//实参为:$("#fullbody")
+    ///控制导航菜单条左侧滚轮是否显示
+    if(sectionScroller.scrollerLeft>0){
+        $currentSlide.find(".navleftcontainer").show();//(".navleftcontaiiner")是导航菜单条左侧滚轮
+    }else{
+        $currentSlide.find(".navleftcontainer").hide()
+    }
+
+    ///控制导航菜单条左侧滚轮是否显示
+    if(sectionScroller.scrollerLeft+$(window).width()<sectionScroller.scrollWidth){
+        $currentSlide.find(".navrightcontainer").show();
+    }else{
+        $currentSlide.find(".navrightcontainer").hide();
+    }
+}
+
+
+
+
+////定义：函数navScroller()
+///功能：创建主页上部导航条的scroller
+///参数:$currentSlide——可为$("#fullbody")
+///返回：无
+///依赖关系：
+//依赖全局变量：sectionScroller、sectionScrollerX、
+//依赖函数:checkSectionScroller
+function navScroller($currentSlide){//实参为:$("#fullbody")
+    if($currentSlide.find(".navigationScroller").length<=0||typeof window.FTScroller!=="function"){//".navigationScroller"是主页上部导航菜单条
+        return;
+    }
+
+    var currentView=$currentSlide.attr("id"),//值为"fullbody"
+        liNumber,
+        newPadding,
+        liWidth;
+
+    if(typeof sectionScroller==="object"){
+        sectionScroller.destroy("removeElements");//疑问：这个destroy()方法是哪里来的
+    }
+
+    $currentSlide.find(".navigationScroller").attr("id","scroller_"+currentView);//设置导航菜单条的id="scroller_fullbody"
+
+    sectionScroller=new FTScroller(document.getElementById('scroller_'+currentView),{
+        scrollingY:false,
+        snapping:false,
+        scrollbars:false,
+        updateOnChanges:true,
+        updateOnwindowResize:true,
+        windowScrollingActiveFlag:"gFTScrollerActive"
+    });//待研究：关于通过new FTScroller创建的scroller对象
+
+    if(sectionScrollerX>0){//初始值为0
+        sectionScroller.scrollTo(sectionScrollerX,0);
+    }
+
+    sectionScroller.addEventListener("scrollend",function(){
+        sectionScrollerX=sectionScroller.scrollLeft;//为导航条左侧已经滚过的距离
+    });
+
+    if (sectionScroller.scrollWidth<=$(window).width() && sectionScroller.scrollWidth<=1024) {//如果用scroller算出来导航条的宽度小于窗口宽度，且小于1024像素，--待细研究
+        liNumber=$("#gamecontent ul.navigation li").length;
+        newPadding=10;
+        liWidth=0;
+        $("#gamecontent ul.navigation li").each(function(){
+            liWidth+=$(this).outerWidth();
+        });
+        if (liNumber>0 && liWidth<sectionScroller.scrollWidth) {
+            newPadding=10+parseInt((sectionScroller.scrollWidth-liWidth)/(2*liNumber), 10);
+        }
+        $("#gamecontent ul.navigation li").css("padding","0 "+newPadding+"px");
+    } else {//此为正常情况：即导航条宽度大于屏幕宽度
+        $("#gamecontent ul.navigation li").css("padding","0 10px");
+        checkSectionScroller($currentSlide);
+        sectionScroller.addEventListener("scrollend", function(){
+            checkSectionScroller($currentSlide);
+        });
+    }//实参为$("#fullbody")
+}
+///知识补充：
+//.outerWidth():获取元素当前的计算宽度，包括padding和border
+
+
+
+
+
+
 /*************文章获取系列*****************/
 ////定义：函数filloneday(onedaydate)
 ///功能：填充设置弹窗的右下角"版本"部分的内容
@@ -418,7 +874,7 @@ function getvalue(thekey){
 ///返回：无
 ///依赖关系：
 //依赖全局变量：_currentVersion,gDeviceId,uaString
-function filloneday(onedaydate){//疑问：这个参数有啥作用？？？并没有在函数内部用到啊
+function filloneday(){//修改：这个参数并没有在函数内部用到，故删去
     /*ga追踪pv,暂略
     setTimeout(function(){
         httpspv(gDeviceType+'/homepage');
@@ -643,12 +1099,110 @@ function downloadStories(downloadType){
 
 }
 
-/******************************************************/
-/****明天从函数loadTohome、startFromoffline写起********/
-/******************************************************/
-function loadTohome(){
+
+////定义函数：fillContent
+///功能：填充主页内容
+///依赖关系：
+//依赖函数:filloneday、histback、showchannel、gotowebapp、addHomeScroller
+//依赖全局变量:uaString
+function fillContent(loadType){
+    var searchnote = '输入关键字查找文章',
+        mpdata,
+        hcdata,
+        message={},
+        hashURL=location.hash||"",
+        _channel_name,
+        _channel_title,
+        theTimeStamp=new Date();
+        lastActionTime,
+        thestoryId,
+        parts;
+    
+    filloneday();//填充设置弹窗的右下角"版本"部分的内容
+
+    $('.closestory,.back,.backbutton').unbind().bind('click',function(){//返回按钮
+        histback();
+    });
+
+    ///广告点击打开iframe(原文注释)
+    adclick();//对href以open开头的a元素（即广告）的href等属性进行设置
+
+    ///从广告返回主页或文章页（原文注释）
+    $('.adback').click(function(){
+        closead();//关闭广告
+    });
+
+    ///点击各频道/栏目等按钮载入其他HTML的页面
+    $('.channel').unbind().bind("click",function(){//所有栏目频道按钮都带有channel样式
+        pageStarted=1;//初始值为0
+        _popstate=0;//初始值为1。待确认：这里表示不是点击了浏览器的前进后退按钮？？？
+        showchannel($(this).attr('url'),$(this).html(),($(this).hasClass('require-log-in')==true)?1:0);
+    });
+
+    ///进入其他Webapp(原文注释)
+    $('.webapp').click(function(){//疑问：这个('.webapp')在哪？目前没找到
+        gotowebapp($(this).attr('url'));//跳转至其他url
+    });
+
+    ///导航栏首页按钮标红（实际上是变蓝）
+    $('.navigation .home').addClass('on');
+
+    /////为主页添加垂直方向scroller
+    setTimeout(function(){
+        addHomeScroller();
+    },10);
+
+    ///创建主页上部导航条scroller
+    navScroller($("#fullbody"));
+
+    ///关于首页垂直滑动的其他额外处理
+    if(useFTScroller==1&&nativeVerticalScroll===false){//当满足这两个条件时，整个主页都不能上下滑动
+        document.getElementById('fullbodycontainer').addEventListener('touchmove',function(e){
+            e.preventDefault();
+        });
+    }else if(nativeVerticalScroll===true){//首页固定尾部（即每日英语、我的FT、刷新、设置部分），不能滑动
+        document.getElementById('contentRail').addEventListener('touchmove',function(e){
+            e.preventDefault();
+        })
+    }
+
+
+    ///给用户的提示（原文注释）暂略，待研究
+    if(!!pmessage){
+        $('.bodynote').append(pmessage);
+    }else{
+        $('.bodynote').hide();
+    }
+
+    ///在搜索弹窗的搜索框处理-----待修改：这段改为一个单独的函数吧
+    $('#searchtxt').val(searchnote);//搜索框中填入提示文字
+    $('#searchtxt').focus(function(){//为搜索弹框绑定focus事件，即在focus时，将字体颜色设置为黑色并清空提示文字
+        var it=$(this);
+        it.css('color','#000');
+        if(it.val()==searchnote){
+            it.val('');
+        }
+    });
+    $('#searchtxt').blur(function(){//为搜索框绑定blur事件
+        var it=$(this);
+        it.css('color','#666');
+        if(it.val()==''){
+            it.val(searchnote);
+        }
+    });
+
+    ///检查读者是否已经登录
+    checkLogin();//待写
+
+
+    ///读者发表评论
+    //待写
+
+    ///查看旧刊的日历
+    //待写
 
 }
+
 
 
 function startFromOffline() {
@@ -676,10 +1230,99 @@ function startFromOffline() {
     }
 }
 
-////定义：函数loadHomePage
-///功能：打开主页
+
+
+
+////定义：函数addstoryclick
+///功能：
 ///依赖关系：
-//依赖函数:startFromOffline()
+//依赖全局变量：pageStarted、_popstate(待研究:这俩全局变量的作用？？？)
+///依赖函数:readstory
+function addstoryclick(){
+    $('.story').unbind().bind('click',function(){//('.story')就是主页的文章列表
+        var storyid=$(this).attr('storyid'),//获取被点击文章的'storyid'属性，
+            storyHeadline=$(this).find(".headline, .h1").html()||"";//获取被点击文章下的('.headlines,.h1')元素的内容，即文章标题
+        pageStarted=1;//初始值为0
+        _popstate=0;//初始值为1
+        readstory(storyid,storHeadline);//先放着
+    })
+}
+
+
+
+////定义：函数showThisImage(ele,imgUrl)
+///功能：在ele的父元素的父元素中显示url为imgUrl的img元素
+///参数：ele——一个img元素，imgUrl——一个图片的url
+///返回：无
+///依赖关系：无
+function showThisImage(ele,imgUrl){
+    ele.parent().parent().addClass('imageloaded').removeClass('image').html('<img src="'+imgUrl+'">');//为元素的父元素的父元素改写内容为一个img
+}
+
+
+
+////定义：函数showAppImage
+///功能：显示文章概要图片
+///参数：ele——实参为'fullbody'
+///返回：无
+///依赖关系：
+//依赖函数:showThisImage()
+function showAppImage(ele){//实参为'fullbody'
+    $('#'+ele+' .image>figure>img').each(function(){
+        var imgUrl=this.src||'';
+        if(this.complete){//如果图片已下载
+            showThisImage($(this),imgUrl);
+            // this image already loaded
+            // do whatever you would do when it was loaded
+        }else{//如果图片未下载
+            $(this).load(function(){
+                showThisImage($(this),imgUrl);
+            });
+        }
+    })
+}
+
+
+////定义：函数loadTohome(data,loadType)
+///功能：准备好主页内容，即完成主页内容的填充及其他处理
+///参数：data,loadType
+///返回：无
+///依赖关系：
+//依赖函数:fillContent、addstoryclick、removeBrokenIMG、showAppImage
+//依赖全局变量:uaString
+function loadTohome(data,loadType){
+    ///填充主页文章内容数据
+    $('#homecontent').html(data);
+
+    ///填充其他主页内容
+    if(loadType!==undefined){
+        fillContent(loadType);
+    }else{
+        fillContent();
+    }
+
+    ///为文章列表添加点击后可以打开对应文章的事件
+    addstoryclick();
+
+    ///移除出错的图片
+    removeBrokenIMG();
+
+    ///显示各文章的概要图片
+    showAppImage('fullbody');
+
+    ///在uaString中含有'baidu'或'micromessenger'字样时，显示“下载原生app”的按钮——待修改：应该写成应该函数封装起来
+    if(/baidu|micromessenger/i.test(uaString)){
+        $('#download-native').removeClass('hidden');
+    }
+}
+
+
+
+
+////定义：函数loadHomePage
+///功能：移除启动页，打开主页
+///依赖关系：
+//依赖函数:updateStartStatus、loadToHome、showDateStamp、startFromOffline
 function loadHomePage(loadType){
     var dateDescription='',
         dateStamp='',
@@ -703,11 +1346,11 @@ function loadHomePage(loadType){
     
     }else if(/^[0-9]{4}\-[0-9]{1,2}\-[0-9]{1,2}$/.test(loadType)){//这个正则是年-月-日的意思吧？？
         dateDescription=loadType.replace(/^([0-9]{4})\-([0-9]{1,2})\-([0-9]{1,2})$/,'$1年$2月$3日');//将年月日换成中文描述形式
-        }
+        
         $('#homeload .loadingStatus').html('加载'+dateDescription+'主页...');//这是已经到了主页，更新主页的‘#homecontent’部分的顶部内容
     
     }else if(loadType!=='start'){
-        $('#homeload .loadingStatus').html('加载最新主页...');
+        $("#homeload .loadingStatus").html("加载最新主页...");
 
     }
 
@@ -803,307 +1446,230 @@ function loadHomePage(loadType){
 }
 
 
-////定义：函数addstoryclick
-///功能：
-///依赖关系：
-//依赖全局变量：pageStarted、_popstate(待研究:这俩全局变量的作用？？？)
-///依赖函数:readstory
-function addstoryclick(){
-    $('.story').unbind().bind('click',function(){//('.story')就是主页的文章列表
-        var storyid=$(this).attr('storyid'),//获取被点击文章的'storyid'属性，
-            storyHeadline=$(this).find(".headline, .h1").html()||"";//获取被点击文章下的('.headlines,.h1')元素的内容，即文章标题
-        pageStarted=1;//初始值为0
-        _popstate=0;//初始值为1
-        readstory(storyid,storHeadline);//先放着
-    })
-}
 
+////定义：函数startpage()
+function startpage(){
+    var savedhomepage;
+    updateTimeStamp();//更新时间戳
+    gStartStatus = "startpage start";
 
-////定义：函数jumpToPage 待写到别处
-function jumpToPage(){
-    var hashURL=location.hash||"",
-        _channel_name,
-        _channel_title,
-        k;
-    if(hashURL.indexOf("story/")>=0){
-        k=hashURL.replace(/^.*story\//g,"");
-        if(document.body.className!='storyview'||readingid!=k){
+    try{
+        updateStartStatus()
+    }catch(ignore){
 
+    }
+
+    var k;
+    var oneday = '';
+    var ccode = getpvalue(window.location.href,"utm_campaign") || "";
+    if (ccode !== "") {
+        setCookie("ccode", ccode, '', '/', '.ftchinese.com');
+    }
+    username = getCookie('USER_NAME') || '';
+    langmode = getCookie('langmode') || 'ch';
+    if (historyAPI()==true) {
+        k=location.href;
+        window.history.replaceState(null, null, gAppRoot + "#/home");
+        window.history.pushState(null, null, k);
+    }
+    try {
+        window.tracker = new FTCTracker();
+        //console.log (tracker);
+    }catch(err){
+        //console.log (err);
+        trackErr(err, "FTCTracker");
+    }
+    if (useFTScroller===0) {window.scrollTo(0, 0);}
+    //从网络获取数据的情况，判断其网络连接的好坏
+
+    try {
+        ipadstorage.init();
+    } catch(err) {
+        trackErr(err, "ipadStorage");
+    }
+    document.body.className = 'fullbody';
+    gNowView = 'fullbody';
+    try {
+        gStartPageStorage = localStorage.getItem(gHomePageStorageKey) || '';
+        _localStorage=1;
+        //loadFromLocalStorage(gStartPageStorage);
+    } catch (err) {
+        gStartPageStorage = "";
+        _localStorage=0;
+    }
+    if (isOnline() === 'no' && gStartPageStorage === '') {
+        $('#startstatus').html('您没有联网');
+        setTimeout(function(){
+            loadHomePage('start');
+        },2000);
+    } else {
+        loadHomePage('start');
+    }
+    //if user use wifi, download the latest 25 stories
+    if (window.gConnectionType !== 'data' && window.gConnectionType !== 'no') {
+        setTimeout(function () {
+            downloadStories('start');
+        }, 1000);
+    }
+
+    try{
+        if (_localStorage===1 && localStorage.getItem(gNewStoryStorageKey)) {
+            savedhomepage = localStorage.getItem(gNewStoryStorageKey);
+            loadStoryData(savedhomepage);
+        }
+    } catch (ignore) {
+        
+    }
+
+    requestTime = new Date().getTime();
+    //gStartStatus = "startpage get_last_updatetime";
+    $.get(gGetLastUpdateTime + requestTime, function(data) {
+        lateststory = data;
+    });
+    setInterval(function() {
+        requestTime = new Date().getTime();
+        $.get(gGetLastUpdateTime + requestTime, function(data) {
+            if (lateststory !== data) {
+                loadHomePage('refresh');
+                if (window.gConnectionType !== 'data' && window.gConnectionType !== 'no') {
+                    downloadStories('refresh');
+                }
+            }
+            lateststory = data;
+            connectInternet="yes";
+            setTimeout(function(){
+                connectInternet="unknown";
+            },299000);
+        });
+        checkbreakingnews();
+    },100000);
+    if (isOnline()=="possible") {checkbreakingnews();}
+    //gStartStatus = "startpage useFTScroller";
+    if (useFTScroller === 1) {
+        try {
+            document.getElementById('fullbodycontainer').addEventListener('touchstart', function(e) {
+                gNowView = document.body.className;
+                gIsSwiping = false;
+                if (typeof window.gFTScrollerActive === "object" || $('#slideShow').hasClass('on') === true ) {
+                    gTouchStartX = -1;
+                    gTouchStartY = -1;
+                    return false;
+                }
+                gTouchStartX = e.changedTouches[0].clientX;
+                gTouchStartY = e.changedTouches[0].clientY;
+            }, false);
+
+            document.getElementById('fullbodycontainer').addEventListener('touchmove', function(e) {
+                var xDistance;
+                var yDistance;
+                gNowView = document.body.className;
+                //if (gNowView==='fullbody') {return;}
+                if ( (typeof window.gFTScrollerActive === "object" && gIsSwiping === false) || $('#slideShow').hasClass('on') === true ) {
+                    gTouchStartX = -1;
+                    gTouchMoveX = -1;
+                    gTouchStartY = -1;
+                    gTouchMoveY = -1;
+                    return false;
+                }
+                gTouchMoveX = e.changedTouches[0].clientX;
+                gTouchMoveY = e.changedTouches[0].clientY;
+                xDistance = Math.abs(gTouchMoveX - gTouchStartX);
+                yDistance = Math.abs(gTouchMoveY - gTouchStartY);
+                if (gTouchStartX !== -1) {
+                    //whether the user is swiping or scrolling
+                    if (((xDistance > gStartSwipe && gMoveState ===0) || (xDistance > gMinSwipe && gMoveState<0)) && typeof window.gFTScrollerActive !== "object" && yDistance < 30 && yDistance/xDistance < 0.5) {
+                        window.gFTScrollerActive = {};
+                        gIsSwiping = true;
+                    }
+                    //If the swiping is true
+                    if (gIsSwiping === true) {
+                        if ((gTouchMoveX - gTouchStartX > gMinSwipe && gMoveState === 0)) {
+                            if (gTouchStartX < gSwipeEdge) {
+                                if (gNowView==='fullbody') {
+                                    switchNavOverlay('on');
+                                } else {
+                                    histback('pinch');
+                                }
+                            }
+                            ga('send','event', 'App Feature', 'Swipe', 'Back');
+                            //console.log ('go right!');
+                            gTouchStartX = -1;
+                        } else if (gTouchMoveX - gTouchStartX < -gMinSwipe && gMoveState ===0){
+                            if (gNowView==='fullbody') {
+                                switchNavOverlay('off');
+                            }
+                            //console.log ('go left!');
+                            gTouchStartX = -1;
+                        } else if ((gTouchMoveX - gTouchStartX > gMinSwipe && gMoveState<0) || (gTouchMoveX - gTouchStartX < -gMinSwipe && gMoveState>0)) {
+                            //console.log ('donot go!');
+                            gTouchStartX = -1;
+                        }
+                    }
+                   
+                }
+            }, false);
+
+            document.getElementById('fullbodycontainer').addEventListener('touchend', function(e) {
+                gTouchStartX = -1;
+                gTouchMoveX = -1;
+                window.gFTScrollerActive = false;
+                gIsSwiping = false;
+            }, false);
+        } catch (ignore){
+        
         }
     }
-}
-
-
-/*************滚动处理******************/
-
-
-/***************界面操作*************/
-
-////定义：函数getURLParameter(url,name)
-///功能：获取指定url（eurl）中的指定参数名(name)的参数值。
-///参数:
-// url:一个url字符串
-// name:url中后面接的一个参数的名称
-///返回：该url中参数名的参数值
-///依赖关系：
-//- 依赖参数：theurl ,thep
-///疑问：这个函数getpvalue(theurl,thep)作用不是一样的吗？为何还要使用另外一种方法再定义一次？？？
-function getURLParameter(url,name){//eg:url为"http://localhost:9000/#/channel//index.php/ft/channel/phonetemplate.html?channel=column&20160625120000",name为"channel"
-    return decodeURIComponent((
-            new RegExp(
-                '[?|&]'+name+'='+'([^&;]+?)(&|#|;|$)'
-            ).exec(url)//执行exec(url)后返回的是存放匹配结果的数组,该例结果为["?channel=column&", "column", "&"]
-            ||[undefined,""]//若上述匹配结果数组为空，则使用[undefined,""]
-        )[1]//取数组中的索引1，即第二个捕获组，该例即为"column"
-        .replace(/\+/g,'%20')//将第二个捕获组的+替换成'%20'？？
-    )||null;//该例最终返回"column"
-}
-
-
-
-////定义函数startslides()
-///疑问：待研究，这个到底是控制哪的？'#channelview'下根本就没有imgslides
-function startslides(){
-    var cv=$('#channelview'),//cv是id为channelview的元素
-        lasttouch=-1,
-        thistouch,
-        sh,
-        ch,
-        k;
-
-    if(cv.find('.imgslides div').length>0){//如果$('#channeview')下具有('.imgslides div')元素
-
-        cv.find('.imgslides:first').after(//选择$('#channelview')下的第一个('.imgslides')元素,在其后面插入以下元素
-            '<div class="slidedots"></div>'
-        );
-
-        cv.find('.imgslides div').each(//对于('#channelview')下的每一个('.imgslides div')元素都执行以下函数
-            function(index){//index即为('.imgslides div')的索引数，从0开始
-                cv.find('.slidedots:first').append('<span n='+ index + '>&nbsp;&#149;&nbsp;</span>');//对于('#channelview')下的第一个('.slidedots'),向其添加一个子元素span
+    //Delegate Click Events for Any New Development
+    //gStartStatus = "startpage inline-video-container";
+    $('body').on('click','.inline-video-container',function(){
+        var videoId = $(this).attr('video-url') || $(this).attr('id') || $(this).attr('vsource') || '';
+        var videoTitle = $(this).attr('title') || '视频';
+        var cmsId = $(this).attr('vid') || '';
+        var cmsImage = $(this).attr('image') || gIconImage;
+        if (videoId!=='') {
+            if (videoId.indexOf('http')<0 && videoId.indexOf('/')>=0) {
+                videoId = 'http://v.ftimg.net/' + videoId;
             }
-        );
+            watchVideo(videoId, videoTitle, cmsId, videoTitle, cmsImage);
+        }
+    });
+    $('body').on('click', '.outbound-link', function(){
+        ga('send','event','Outbound Link in App', 'click', $(this).attr('href') + '/' + window.location.href);
+    });
+    
+    //click navOverlay to close navigation
+    $('body').on('click', '#navOverlay', function(e){
+        var k = e.target.id;
+        if (typeof k !== 'undefined' && k === 'navOverlay') {
+            closeOverlay();
+            $(".channelNavButton").removeClass("open");
+        }
+    });
+    //gStartStatus = "startpage end";
+    //Delegate Click on Home Page
+    $("body").on("click",".track-click",function(){
+        var eventCategory,eventAction,eventLabel;
+        eventCategory = "Phone App";
+        eventAction = "Click";
+        eventLabel = $(this).attr("eventLabel") || "";
+        if (eventLabel !== "") {
+            ga('send','event',eventCategory, eventAction, eventLabel);
+        }
+    });
+    
+    //Window Oriention Change event
+    try {
+    window.addEventListener("orientationchange", function() {
+        httpspv(gDeviceType + '/rotate');
+    }, false);
+    }catch(ignore){
 
-        cv.find('.slidedots span').click(//如果点击('#channelview')下的各('.slidedots span')
-            function(){
-                cv.find('.slidedots span').removeClass('grey');//移除所有('.slidedots span')元素class'grey'
-                $(this).addClass('grey');//为当前点击的元素添加class'grey'
-                cv.find('.imgslides div').hide();//隐藏('.imgslides div')
-                cs=$(this).attr('n');//获取当前元素的属性n的值
-                cs=parseInt(cs,10);//将n值以10进制转换为数值
-                $('#channelview .imgslides div').eq(cs)//选择这种元素的第cs+1个
-                    .css('left',0)//设置left为0
-                    .fadeIn(500);//过0.5s渐渐显现出来
-            }
-        );
-
-        $('#channelview .imgslides div:first' ).show();
-        $('#channelview .slidedots span:first').addClass('grey');
-
-
-        ///手指滑动翻页效果（原有注释）
-        
-        cs=0;
-
-        ///touchmove事件
-        document.getElementById('imgslides').addEventListener('touchmove',function(e){//touchmove事件
-                thistouch=e.changedTouches[0].clientX;//对于touchmove事件而言，e.changedTouches是一系列的改变了的触摸点。此处thistouch就是touchmove发生后的第一个触摸点的横坐标
-                if(lasttouch>0){
-                    sh=$('#imgslides div').eq(cs).css('left').replace(/px/g,'');
-                    ch=thistouch-lasttouch;
-                    sh=parseInt(sh,10);
-                    k=sh+ch;
-                    $('#channelheight').html(thistouch+':'+lasttouch+':'+sh+':'+k);
-                    $('#imgslides div').eq(cs).css('left',k);
-                }
-                lasttouch=thistouch;//将当前thistouch赋值给下一次touchmove事件的lasttouch
-            },false
-        );
-
-        ///touchstart事件
-        document.getElementById('imgslides').addEventListener('touchstart',function(e){
-            lasttouch=e.changedTouches[0].clientX;
-            touchstartx=lasttouch;
-        },false);
-
-        ///touchend事件
-        document.getElementById('imgslides').addEventListener('touchend',function(e){
-            touchendx=e.changedTouches[0].clientX;
-            $('#channelheight').html(touchendx+':'+touchstartx);
-            var ls=cs;
-            if(touchendx-touchstartx<-30){
-                cs=cs+1;
-                $('#imgslides div').eq(ls).animate({
-                        left:'-999px'
-                    },500)；
-            }else if(touchendx-touchstartx>30){
-                cs=cs-1;
-                $('#imgslides div').eq(ls).animate({
-                    left:'999px'
-                },500);
-            }else{
-                #('#imgslides div').eq(ls).animate({
-                    left:0
-                },500);
-            }
-            if(cs==-1){
-                cs=$('#imgslides div').length=-1;
-            }else if(cs==$('#imgslides div').length){
-                cs=0;
-            }
-            if(cs!=ls){
-                setTimeout(function(){
-                    $('#imgslides div').hide();
-                    $('#imgslides div').eq(cs).css('left',0).fadeIn(500);
-                },500);
-            }
-            $('#channelview .slidedots span').removeClass('grey');
-            $('#channelview .slidedots span').eq(cs).addClass('grey');
-
-        },false);
+    }
+    
+    if (gShowStatusBar == 1) {
+        $("html").addClass("show-status-bar");
     }
 }
-
-
-////定义：函数closead
-///功能：关闭广告
-///依赖关系：
-//依赖全局变量:gNowView、useFTScroller、scrollHeight、gDeviceType
-//依赖函数:httpspv、recordAction
-function closead(){
-    document.body.className=gNowView;
-    if(useFTScroller===0){
-        setTimeout(function(){
-            window.scrollTo(0,scrollHeight);
-        },10);
-    }
-    $('body').css('background','#FFF1E0');
-    $('#adiframe').attr('src','');
-
-    ///记录首页pv(原文注释)
-    /*先去掉ga追踪相关
-    httpspv(gDeviceType+'/homepage');
-    recordAction('/phone/homepage');
-    */
-}
-
-
-
-
-
-////定义：函数histback()
-///依赖关系：
-//依赖函数：closeOverlay(),backhome()
-//依赖全局变量：hist
-function histback(){
-
-}
-
-
-
-////定义：函数closeOverlay()
-///功能：关闭所有弹窗及相关处理
-///依赖关系：
-//依赖全局变量：scrollOverlay(其初始化为0)、noFixedPosition
-//依赖函数:pauseallvideo()
-function closeOverlay(){
-    pauseallvideo();//暂停所有video元素
-    $(".overlay").removeClass("on");//overlay弹窗全部移除class"on"
-    $("button.open").removeClass("open");//带有样式open的button移除样式"open"
-    if(noFixedPosition==1){//如果设备是Android1或Android2，即无fixed的position
-        window.scrollTo(0,scrollOverlay);
-        scrollOverlay=0;
-    }
-    $("#videoContent").empty();//"#videoContent"元素内的东西全部清空
-}
-
-
-
-////定义：函数turnonOverlay(theId)
-///功能：显示id为theId的弹窗
-///依赖关系：
-//依赖全局变量：scrollOverlay(其初始化为0)、noFixedPosition
-//依赖参数：theId
-function turnonOverlay(theId){
-    $(".overlay").removeClass("on");
-    $("#"+theId).addClass("on");
-
-    if(noFixedPosition==1){//疑问：这个对没有fiexed定位的设备的处理没怎么懂
-        scrollOverlay=window.pageYOffset;
-        window.scrollTo(0,0);
-    }
-}
-///说明：window.pageYOffset是window.scrollY的别名，其为document从顶部滑动过的垂直距离,单位为px
-
-
-////定义：函数shareArticle()
-///功能：分享文章按钮点击后执行
-///依赖关系：
-//依赖全局变量：noFixedPosition、shareScroller、FTScroller
-//依赖参数：theId
-function shareArticle() {
-    $("#shareStory").addClass("on");
-
-    if (noFixedPosition==1) {
-        scrollOverlay=window.pageYOffset;
-        window.scrollTo(0, 0);
-    }
-
-    if (shareScroller === undefined && typeof window.FTScroller === "function") {
-        shareScroller = new FTScroller(document.getElementById("shareScroller"), gVerticalScrollOpts);
-    }
-}
-
-
-////定义：函数closeShareArticle()
-///功能：文章分享弹窗中关闭按钮点击后执行
-///依赖关系：无
-function closeShareArticle(){
-    $("#shareStory").removeClass("on");
-}
-
-
-
-////定义：函数openClip()
-///功能：点击剪报按钮后执行
-///依赖关系：
-//依赖函数:turnonOverlay(theId)
-function openClip(){
-    turnonOverlay('clipStory');
-    $("#addfavlink").empty(''); 
-    $("#clipButton").show();
-}
-
-
-
-
-////定义：函数adclick()
-///功能：如果当前url中含有"phone.html"，将本页面中href以"open"为开头的a元素的href、target属性进行处理。
-///参数: 无
-///返回：无
-///依赖关系：单一功能小函数
-// 不依赖任何其他东西
-function adclick(){
-    var lo=window.location.href.toLowerCase();
-    if(lo.indexOf('phone.html')>0){
-        $('a[href^="open"]').each(function(){
-            var thelink=$(this).attr("href");
-            thelink=thelink.replace(/openads:\/\//g,'').replace(/opensafari:\/\//g,'');
-            $(this).attr("href",thelink).attr("target","_blank");
-        })
-    }
-}
-///疑问
-//1. 当前url为什么会包含"phone.html"？——可以参见gulpfile.js中的任务copy，即有把index.html拷贝为phone.html的步骤。问题是为什么要对这种为"phone.html"的情况特殊处理？
-//2. 这里a替换后的href含有"opensafari://",这是否表明是从safari浏览器中打开这个链接？？
-
-
-
-
-////定义大函数：showchannel
-///依赖关系：
-//依赖传入参数：url,channel,requireLogin,openIniframe,channelDescription
-// 依赖全局变量：
-// 依赖函数；turnonOverlay、closeOverlay、 getURLParameter、historyAPI、httpspv、recordAction、handlelinks、addChannelScroller、navScroller、 checkLogin、updateShare、 pauseallvideo、 removeBrokenIMG
 
 
 /*************重量级函数****************/

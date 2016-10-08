@@ -86,5 +86,5 @@ try{
 	checkDevice();
 	startPage();
 }catch(err){
-	trackErr(err+", where: "+ gStartStatus,"startpage");
+	//trackErr(err+", where: "+ gStartStatus,"startpage");
 }
