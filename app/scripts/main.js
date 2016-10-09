@@ -84,7 +84,7 @@ if(typeof window.gCustom==="object"){
 ////执行：Start the web app
 try{
 	checkDevice();
-	startPage();
+	startpage();
 }catch(err){
 	//trackErr(err+", where: "+ gStartStatus,"startpage");
 }

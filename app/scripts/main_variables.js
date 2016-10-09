@@ -3,6 +3,12 @@
 var _currentVersion = 1117;
 
 
+///定义全局变量uaForMail
+//功能：存储浏览器相关信息
+var uaForMail=navigator.userAgent||navigator.vendor||"";
+uaForMail=uaForMail+"%0D%0A%0D%0Amy URL: "+location.href;
+
+
 
 ////定义：全局变量gDeviceId
 ///功能：疑问：指示当前设备？？？
@@ -96,6 +102,7 @@ var noFixedPosition = 0;
 
 ///功能：定义一个对象gCustom,待研究
 ///说明：原文定义在app/mba.html中，内嵌的
+/*
 var gCustom = {
   "template": "/index.php/ft/channel/phonetemplate.html?pagetype=academy&",
   "appname":"FT商学院",
@@ -119,10 +126,9 @@ var gCustom = {
   "useFTScroller":true,
   "pullRefresh":false
 }
+*/
 
-
-////以下6个全局变量对应于上述gCustom的各属性
-var  gStartPageTemplate=''; //修改：给个初始值为空字符串，原为没有初始化
+////以下6个全局变量对应于上述gCustom的各属性var  gStartPageTemplate=''; //修改：给个初始值为空字符串，原为没有初始化
 
 var gStargPageAPI=true;
 
@@ -152,7 +158,8 @@ var gVerticalScrollOpts = {//修改：把声明和赋值合并了
 
 ////定义：几个和scroller相关的全局变量
 ///疑问：它们具体都代表什么？
-var scrollHeight=0, scrollOverlay=0;
+var scrollHeight=0, //即为window.scrollY即window.pageYOffset，垂直方向滚动过的距离
+scrollOverlay=0;
 var sectionScroller, 
 theScroller, //用以存储FT的scroller对象
 storyScroller, 
@@ -172,6 +179,7 @@ var thed;
 var thisdayunix; //今天的Unix时间戳
 var expiredayunix; //3 * 30 * 24 * 60 * 60; //本地存储过期日(三个月)的unix时间戳
 var latestunix;//这是最新的时间戳的意思吧？？
+var actionTimeStamp;
 
 
 
@@ -213,7 +221,7 @@ var gHomeAPIfail;
 
 var gStartPageAPI=true;
 
-///功能：存储最近一次在线状态下载文章的时间戳？？（猜的）待研究，但一定是个时间戳
+///功能：存储最近一次在线状态下载文章的时间戳？？（猜的）待研究，但一定是个时间戳???
 var lateststory='';
 
 
@@ -241,3 +249,29 @@ var gHomePageIsLatest = true;
 
 ///功能：存储给用户的提示内容
 var pmessage;
+
+///功能：存储语言模式，cookie'langmode'中存储的
+var langmode="ch";
+
+///功能：存储用户名，cookie 'USER_NAME' 中存储的
+var username="";//修改：之前没有赋初始值，如果不赋初始值，则自动为undefined
+
+
+//网页的地址
+var gAppRoot=window.location.href;
+gAppRoot=gAppRoot.replace(/^.*\.com\//g,"").replace(/(\.html).*$/g,"$1").replace(/(\.php).*$/g,"$1").replace(/\#.*$/g,'');
+
+
+var gStartPageStorage = '';
+
+
+var gConnectionType="";
+
+///存储发出请求的时间
+var requestTime;
+
+
+var gStartPageTemplate; 
+
+///存储从url提取的信息组成的数组
+var gTagData=[];

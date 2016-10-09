@@ -8,16 +8,6 @@ function handleLogoError(){
 
 
 
-///定义全局变量uaForMail
-//功能：存储浏览器相关信息
-var uaForMail=navigator.userAgent||navigator.vendor||"";
-uaForMail=uaForMail+"%0D%0A%0D%0Amy URL: "+location.href;
-
-
-///定义全局变量_currentVersion
-//功能：指明当前app版本的全局变量：
-var _currentVersion=1117;
-
 
 ///定义函数commonProblem
 //功能：替换启动页面元素内容

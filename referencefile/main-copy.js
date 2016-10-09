@@ -1018,7 +1018,7 @@ function downloadStories(downloadType) {//√
     var connectionType = window.gConnectionType || 'unknown connection';
     try {
         updateStartStatus('running downloadStories');
-    } catc、、、h (ignore) {
+    } catch (ignore) {
 
     }
     if (gStartPageAPI === true) {
@@ -2436,7 +2436,7 @@ function showchannel(url, channel, requireLogin, openIniFrame, channelDescriptio
         navTitle;
     var channelHeight = $(window).height() - 45;
     var channelDetail = channelDescription || '';
-    var orignialUrl = url;
+    var originalUrl = url;
 
     //extract tag information from url
     gTagData = url.replace(/^.*channel=/,'').replace(/^.*tag\//,'').replace(/\?.*$/g,'');
