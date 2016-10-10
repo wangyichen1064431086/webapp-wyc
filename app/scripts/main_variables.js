@@ -99,6 +99,14 @@ var nativeVerticalScroll = false;
 var noFixedPosition = 0;
 
 
+///如果网址中有wechatShare,则强制调用iOS原生SDK分享（原文注释）
+var iOSShareWechat=0;
+
+
+var gShowStatusBar =0;
+
+///功能：根据设备是pad还是手机，值可能为'/ipad'或'/phone'，再在后面加上gCustom.productid
+var gDeviceType='';
 
 ///功能：定义一个对象gCustom,待研究
 ///说明：原文定义在app/mba.html中，内嵌的
@@ -227,9 +235,14 @@ var lateststory='';
 
 var gHomeAPIfail;
 
-
+///存储正在读取的story的id
 var readingid;
+
+
 var langmode="ch";
+
+
+///功能：存储历史记录信息对象的数组，每个数组元素对象结构为{'url':url,'title':channel}
 var  hist = [];
 
 

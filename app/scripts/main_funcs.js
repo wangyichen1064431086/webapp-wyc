@@ -121,8 +121,8 @@ function isOnline() {//iOS和BB10可以准确判断离线状态，某些Android�
 ///参数：无
 ///返回：无
 ///依赖关系：
-//依赖全局变量uastring、gCustom
-//操纵全局变量osVersion、osVersionMore、useFTScroller
+//依赖全局变量uastring、gCustom、gIsInSWIFT
+//操纵全局变量osVersion、osVersionMore、useFTScroller、nativeVerticalScroll、iOSShareWechat、gShowStatusBar、gDeviceType
 ///特殊地位：直接写在执行函数里面
 function checkDevice(){
     ///根据全局变量uaString的值给全局变量osVersion赋值：
@@ -162,11 +162,79 @@ function checkDevice(){
     }else if(osVersion.indexOf("Android2")>=0||osVersion.indexOf("Android1")>=0){//如果osVersion 表示是Android版本，则设置noFixedPosition为1。疑问：这意思是Android1和Android2没有fixed的position吗
         noFixedPosition=1;
     }
+
+    ///原文注释：
+    // using native vertical scroll doesn't make text selection easy 
+    // and comes with other problems
+    // stop using it for now and revisit the issue in the future
+
+    ///当操作系统Android4-9或ios5-9时，使用原生的scroll
+    if(/Android[4-9]/i.test(osVersion)||/ios[5-9]i/i.test(osVersion)){
+        nativeVerticalScroll=true;
+    }
+
+
+    ///根据useFTScroller的值，决定是给html用class"noScroller"还是"hasScroller"
+    if(useFTScroller==1){
+        $("html").removeClass("noScroller").addClass("hasScroller");
+    }else{
+        $("html").addClass("noScroller").removeClass("hasScroller");
+    }
+
+    ///根据noFixedPosition的值，决定是给html用不用class "noFixedPosition"
+    if(noFixedPosition==1){
+        $("html").addClass("noFixedPosition");
+    }else{
+        $("html").removeClass("noFixedPosition");
+    }
+
+    ///根据osVersion是否是MSIE(即IE)，决定是否给html使用class"fontOutside"
+    if(osVersion.indexOf("MSIE")>=0){
+        $("html").addClass("fontOutside");//待研究：这个fontOutside对于ie有着什么不同的意义？？
+    }else{
+        $("html").removeClass("fontOutside");
+    }
+
+    ///如果osVersion含有"bb10"且当前URL含有"phoneapp",则给html添加class"hideVideo"---疑问：为什么要这样呢？？？
+    if(osVersion.indexOf("bb10")>=0&&location.href.indexOf("phoneapp")>=0){
+        $("html").addClass("hideVideo");
+    }
+
+    ///根据当前url中的"iOSShareWechat"等，给iOSShareWechat赋值并存储localStorage
+    iOSShareWechat=getvalue("iOSShareWechat")||0;//存储localStorage"iOSShareWechat"的值，没有这个localStorage则赋值为0
+    if(location.href.indexOf("iOSShareWechat")>=0||location.href.indexOf("iphone")>=0||location.href.indexOf("ipad")>=0){//如果location.href中含有iOSShareWechat或iphone或ipad,则给iOSShareWechat赋值为1，并存储这个叫做"iOSShareWechat"的localStorage
+        iOSShareWechat=1;
+        savevalue("iOSShareWechat",1)
+    }
+
+    ///根据当前url中的"gShowStatusBar"，给gShowStatusBar赋值并存储localStorage---疑问：gShowStatusBar是干嘛用的？？？
+    gShowStatusBar=getvalue("gShowStatusBar")||0;
+    if(location.href.indexOf("gShowStatusBar")>=0){
+        gShowStatusBar=1;
+        savevalue("gShowStatusBar",1);
+    }
+
+    ///根据uaString中有无iPad，决定gDeviceType的值为'/ipad'还是'/phone'
+    if(/iPad/i.test(uaString)){
+        gDeviceType='/ipad';
+        $("html").addClass("is-ipad");
+    }else{
+        gDeviceType='/phone';
+    }
+
+    ///gDeviceType为gDeviceType+gCustom.productid
+    if(typeof window.gCustom==="object"){
+        if(typeof window.gCustom.productid==="string"){
+            gDeviceType=gDeviceType+"/"_+window.gCustom.productid;//gCustom.productid值为"mbagym"
+        }
+    }
+
+    ///如果gIsInSWIFT为true,则为html添加class'is-in-swift'
+    if(gIsInSWIFT===true){
+        $('html').addClass('is-in-swift');
+    }
+
 }
-///原文注释：
-// using native vertical scroll doesn't make text selection easy 
-// and comes with other problems
-// stop using it for now and revisit the issue in the future
 
 
 
@@ -382,7 +450,7 @@ function deleteCookie(name){
 }
 
 
-////定义函数：saveValue(thekey,thevalue)
+////定义函数：savevalue(thekey,thevalue)
 ///功能：设置localStorage(出错则设置为cookie)
 ///参数: 
 //theKey——localStorage的键
@@ -390,7 +458,7 @@ function deleteCookie(name){
 ///返回：无
 ///依赖关系：
 // 依赖函数setCookie
-function saveValue(thekey,thevalue){///修改：直接将原文savevalue和saveLocalStorage合并，不然太啰嗦了。
+function savevalue(thekey,thevalue){///修改：直接将原文savevalue和saveLocalStorage合并，不然太啰嗦了。
     try{
         localStorage.setItem(thekey,thevalue);//修改：原文还多了一句localStorage.removeItem(thekey),本来localStorage中同样的key自然就会以新值覆盖
     }catch(err){
@@ -419,6 +487,70 @@ function getvalue(thekey){
 
 
 
+/****************阅读文章系列************/
+////定义：函数readstory
+///依赖关系：
+//依赖全局变量：useFTScroller、scrollHeight、pageStarted、_popstate、readingid
+function readstory(theid,theHeadline){
+    var h,
+        theurl,
+        backto,
+        sv,
+        allViewsId,
+        jsondata,
+        myid;
+
+    if(useFTScroller===0){
+        if(!$("body").hasClass('storyview')){//修改：原文为xxx==false
+            scrollHeight=window.pageYOffset;
+        }
+    }
+    if(noFixedPositio==1){
+        h=$(window).height();
+        h=(h-46)/2;
+        h=parseInt(h,10);
+        $("#remindBack").css("top",h+"px");
+        $("#remindBack").addClass("on");
+        setTimeout(function(){
+            $("#remindBack").removeClass("on");
+        },3000);
+    }
+
+    ///记录历史记录
+    ///check if its already present(原文注释)
+    if(hist&&((hist[0]&&hist[0].url!='story/'+theid)||hist.length==0)){//如果hist已经定义了，但是一个元素项都还没有
+        hist.unshift({//向hist数组头部添加一个对象元素
+            'url':'story/'+theid,
+            'title':theHeadline
+        });
+        if(historyAPI()==true&&_popstate==0){
+            theurl="#/story/"+theid;
+            if(location.href.indexOf(theid)<0){
+                window.history.pushState(null,null,gAppRoot+theurl);//向 history 添加当前页面的记录
+            }
+        }
+    }
+    pageStarted=1;
+    _popstate=0;
+
+    sv=$('#storyview');
+
+    readingid=theid;//全局变量readingid存储story的id
+
+    allViewsId=$('#fullbody:visible,#storyview:visible,#channel:visible').attr('id');//三种页面中可见页面的id组成的数组
+
+    
+
+
+
+}
+///说明：
+//1.:visible是可见性过滤选择器，包括由display和visibility控制的元素
+
+
+
+
+
 /***************界面操作*************/
 
 ////定义：函数getURLParameter(url,name)
@@ -443,7 +575,12 @@ function getURLParameter(url,name){//eg:url为"http://localhost:9000/#/channel//
 
 
 
+
 ////定义：函数showchannel
+///依赖关系：
+//依赖传入参数：url,channel,requireLogin,openIniframe,channelDescription
+// 依赖全局变量：
+// 依赖函数；turnonOverlay、closeOverlay、 getURLParameter、historyAPI、readStory、handlelinks、addChannelScroller、navScroller、 checkLogin、updateShare、 pauseallvideo、 removeBrokenIMG
 function showchannel(url,channel,requireLogin,onpenIniFrame,channelDescription){
 
     ///需要登录才能查看的频道会弹出提示框
@@ -456,7 +593,7 @@ function showchannel(url,channel,requireLogin,onpenIniFrame,channelDescription){
     }
 
     var channelview=$('#channelview');
-    var channelheight=screen.height-45;//全局变量screenHeight就是screen.height,考虑：要不要去掉这个全局变量
+    var channelHeight=screen.height-45;//全局变量screenHeight就是screen.height,考虑：要不要去掉这个全局变量
     var channelDetail=channelDescription||'';
     var originalUrl=url;
     var chview,
@@ -536,9 +673,65 @@ function showchannel(url,channel,requireLogin,onpenIniFrame,channelDescription){
         url=url+"?"+themi;
     }
 
-    /******************************/
-    /***********写到这里了*********/
-    /******************************/
+    ///记录频道页浏览历史（原文注释）
+    if(hist&&((hist[0]&&hist[0].url!=url)||hist.length==0)){
+        hist.unshift({
+            'url':url,
+            'title':channel
+        });
+        if(historyAPI()==true&&_popstate==0){//_popstate初始值为0
+            theurl="#/channel/"+url;
+            urlPure=url.replace(/[\?\&][0-9]+$/g,"");
+            if(location.href.indexOf(urlPure)<0){
+                window.history.pushState(null,null,gAppRoot+theurl);//向history添加当前页面的记录
+            }
+        }
+    }
+    _popstate=0;
+
+    if(typeof openIniframe===true){//修改：原文typeof openIniFrame !== 'undefined' && openIniFrame === true
+        chview.html('<iframe src="'+url+'" width="100%" height="'+channelHeight+'px" border=0 frameborder=0></iframe>');
+    }else{
+        $.ajax({
+            method:'GET',
+            url:url
+        }).done(function(data,textStatus){
+            var pageTitle;
+            chview.html(data);
+            $('.channeltitle').html(channel);
+
+            ///频道中的分页（原文注释）---待研究：此处逻辑还未看
+            if(chview.find('.pagination').length>0){
+                $('.p_input').parent().hide();
+                current_Page=chview.find('.pagination span').html();
+                current_Page=parseInt(current_Page, 10);
+                chview.find('.pagination a').each(function() {
+                    it = $(this);
+                    pageurl = '/index.php/ft' + it.attr('href') + '&i=2';
+                    pageTitle = it.attr('href') || '';
+                    pageTitle = pageTitle.replace(/^.*\/tag\//g,"").replace(/\?.*$/g,"");
+                    pageTitle = decodeURIComponent(pageTitle);
+                    it.removeAttr('href').addClass('channel').attr('url', pageurl).attr('title',pageTitle);
+                    if (it.html()=="余下全文" || it.html()==">>" || it.html()=="<<") {
+                        it.remove();
+                    }
+                    h=it.html();
+                    h=parseInt(h, 10);
+                    if (current_Page>0 && h>0) {
+                        it.remove();
+                    }
+                });
+            }
+
+            ///点击story阅读全文
+            chview.find('.story').click(function(){
+                storyid=$(this).attr('storyid');//获取属性storyid的值，即为本文id
+                readstory(storyid);
+            });
+
+        })
+    }
+
 
 }
 
@@ -848,11 +1041,7 @@ function openSearch(){
 
 
 
-////定义大函数：showchannel
-///依赖关系：
-//依赖传入参数：url,channel,requireLogin,openIniframe,channelDescription
-// 依赖全局变量：
-// 依赖函数；turnonOverlay、closeOverlay、 getURLParameter、historyAPI、httpspv、recordAction、handlelinks、addChannelScroller、navScroller、 checkLogin、updateShare、 pauseallvideo、 removeBrokenIMG
+
 
 
 ////定义函数：gotowebapp(url)
@@ -1082,7 +1271,7 @@ function filloneday(){//修改：这个参数并没有在函数内部用到，�
 function saveoneday(onedaydate,data){
     if(!onedaydate){//如果ondaydate不存在
         try{
-            saveValue(gNewStoryStorageKey,data)//gNewStoryStorageKey初始值为"homepage"
+            savevalue(gNewStoryStorageKey,data)//gNewStoryStorageKey初始值为"homepage"
             //修改：我直接用了saveValue，原文用了saveLocalStorage，还先用了localStorage.removeItem
         }catch(ignore){
 
@@ -1574,7 +1763,7 @@ function loadHomePage(loadType){//2
 
                 ///将请求得来的data以"homepage"命名存储为localStorage
                 try{
-                    saveValue(gHomePageStorageKey,data);//修改：直接用我的saveValue。gHomePageStorageKey="homePage"
+                    savevalue(gHomePageStorageKey,data);//修改：直接用我的savevalue。gHomePageStorageKey="homePage"
                 }catch(ignore){
 
                 }
