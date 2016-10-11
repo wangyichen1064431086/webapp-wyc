@@ -537,11 +537,13 @@ function readstory(theid,theHeadline){
 
     readingid=theid;//全局变量readingid存储story的id
 
-    allViewsId=$('#fullbody:visible,#storyview:visible,#channel:visible').attr('id');//三种页面中可见页面的id组成的数组
+    allViewsId=$('#fullbody:visible,#storyview:visible,#channel:visible').attr('id');//三种页面中页面中按顺序第一个可见元素的id，如"fullbody"
 
-    
+    if(allViewsId!='storyview'){
+        gNowView = allViewsId;
+    }
 
-
+    if(allViewsId!='story')
 
 }
 ///说明：
