@@ -46,7 +46,7 @@ if (window.location.hostname === 'localhost' || window.location.hostname.indexOf
 
     gWebRoot = 'http://m.ftchinese.com';
     if (screenWidth >= 700) {
-        gStartPageTemplate = 'api/homecontentwide.html?';
+        gStartPageTemplate = 'api/homecontentwide.html?';//本地测试时使用的主页文章数据模板文件是api/homecontentwide.html和homecontent.html,即本地请求时的URL为'http://localhost:8000/api/homecontent.html?20160912142000'
     } else {
         gStartPageTemplate = 'api/homecontent.html?';
     }

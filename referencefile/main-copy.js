@@ -1555,10 +1555,10 @@ function readstory(theid, theHeadline) {
             });
         }
     }, 10);	
-	pauseallvideo();
+	pauseallvideo();//√//√
 }
 
-function removeTag(theCode) {
+function removeTag(theCode) {//√
     var k = theCode.replace(/<\/*p>/gi, '')
                     .replace(/^<div.*<\/div>$/gi, '')
                     .replace(/<table.*<\/table>/g,'')
@@ -1906,7 +1906,7 @@ function displaystory(theid, language) {
 
     if (nativeVerticalScroll === true) {
         document.getElementById('storyScroller').scrollTop = 0;
-    } //复杂函数
+    } //复杂函数//√
 }
 //阅读文章:end
 

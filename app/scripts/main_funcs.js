@@ -225,7 +225,7 @@ function checkDevice(){
     ///gDeviceType为gDeviceType+gCustom.productid
     if(typeof window.gCustom==="object"){
         if(typeof window.gCustom.productid==="string"){
-            gDeviceType=gDeviceType+"/"_+window.gCustom.productid;//gCustom.productid值为"mbagym"
+            gDeviceType=gDeviceType+"/"+window.gCustom.productid;//gCustom.productid值为"mbagym"
         }
     }
 
@@ -487,11 +487,457 @@ function getvalue(thekey){
 
 
 
-/****************阅读文章系列************/
+/************阅读文章系列:start************/
+/***相关基础功能函数**/
+////定义：函数removeTag————学习进度：已吃透
+///功能：去掉一段代码中的p、div、table、img
+///参数：theCode
+///返回：去掉这几个标签后的theCode
+///依赖关系：无
+
+function removeTag(theCode){
+    var k=theCode.replace(/<\/*p>/gi,'')//去掉前后p标签
+                 .replace(/^<div.*<\/div>$/gi,'')//去掉前后div标签及其内容
+                 .replace(/<table.*<\/table>/g,'')//去掉前后table标签及其内容
+                 .replace(/<img.*>/gi,'')//去掉img标签
+    return k;
+}
+
+
+////定义：函数updateShare————学习进度：未看
+///功能：分享文章
+//share to social buttons（疑问注释）
+function updateShare(domainUrl, mobileDomainUrl, contentType, contentId, contentTitle, contentLongTitle, contentImage, contentDescription, shareMobile) {
+    var url = encodeURIComponent(domainUrl) + encodeURIComponent(contentType) + contentId;
+    var mobileUrl = encodeURIComponent(mobileDomainUrl) + encodeURIComponent(contentType) + contentId;
+    var l = contentImage;
+    var d = contentDescription + '';
+    var e = '';
+    var shareSource = '';
+    var k = '';
+    $('#shareSinaWeb').attr('href','http:\/\/service.weibo.com\/share\/share.php?appkey=4221537403&isad=1&url=' + url + '&title=' + contentLongTitle + '&ralateUid=1698233740&source=&sourceUrl=&content=utf-8&pic=');
+    $('#shareQQ').attr('href','http:\/\/share.v.t.qq.com\/index.php?c=share&a=index&url=' + url + '&title=' + contentLongTitle + '&source=1000014&site=http:\/\/www.ftchinese.com&isad=1');
+    $('#shareFacebook').attr('href','http:\/\/www.facebook.com\/sharer.php?isad=1&u=' + url + '&amp;t='+encodeURIComponent(contentLongTitle.substring(0,76)));
+    $('#shareTwitter').attr('href','http:\/\/twitter.com\/home?isad=1&status='+contentLongTitle.substring(0,80)+'... ' + decodeURIComponent(url));
+    $('#shareRenren').attr('href','http:\/\/share.renren.com/share/buttonshare.do?isad=1&link=' + url + '&title='+encodeURIComponent(contentLongTitle.substring(0,76)));
+    $('#shareLinkedIn').attr('href','https:\/\/www.linkedin.com/cws/share?isad=1&url=' + url +'&original_referer=https%3A%2F%2Fdeveloper.linkedin.com%2Fsites%2Fall%2Fthemes%2Fdlc%2Fsandbox.php%3F&token=&isFramed=true&lang=zh_CN&_ts=1422502780259.2795');
+    $('#shareSocial,#shareSinaWeibo').val(contentLongTitle + decodeURIComponent(url));
+    $('#shareURL').val(decodeURIComponent(url));
+    $('#shareMobile').val('【' + contentTitle + '】' + decodeURIComponent(url) + '#ccode=2G168002');
+    $('#shareEmail').attr('href','mailto:?subject='+contentTitle+'&body='+ contentLongTitle + decodeURIComponent(url));
+    //如果是iOS原生应用，传参数给SDK分享微信
+    $('#webappWeixin,#nativeWeixin').hide();
+    if ((/phoneapp.html/i.test(location.href) && osVersion.indexOf('ios')>=0 && (osVersion.indexOf('ios7')<0)) || /android|isInSWIFT/i.test(location.href) || iOSShareWechat==1) {
+        $('#nativeWeixin').show();
+        // if (gIsInSWIFT === true) {
+        //     l = resizeImg(l,72,72);
+        // }
+        if (l !== '') {
+            l = '&img=' + l;
+        }
+        //console.log (l);
+        //console.log ('d: ' + d);
+        if (d !== '') {
+            d = "&description=" + d;
+        }
+        e = contentTitle;
+        if (location.href.indexOf("android")>=0) {
+            d=d.replace(/%/g,'％');
+            e=e.replace(/%/g,'％');
+        }
+        if (/iPad/i.test(uaString) || /iPhone/i.test(uaString) || /iPod/i.test(uaString)) {
+            shareSource = ' - FT中文网';
+        }
+        k = 'ftcweixin://?url=' + mobileUrl + "&title=" + encodeURIComponent(e) + shareSource + d + l;
+        k = k.replace(/[\r\n\"\'<>]/g,"");
+        $("#shareChat").attr("href",k+"&to=chat");
+        $("#shareMoment").attr("href",k+"&to=moment");
+        $("#shareFav").attr("href",k+"&to=fav");
+        if (location.href.indexOf("android")>=0) {
+            $("#shareFav").parent().remove();
+            $("#shareMoment").parent().addClass('last-child');
+        }
+        if (gIsInSWIFT === true) {
+            k=k.replace(/ftcweixin:/g,'iosaction:');
+            $('#iOSAction, #iOS-video-action').attr('href',k);
+        }
+    } else {
+        $("#webappWeixin").show();
+    }
+    //如果是中文或中英对照模式，取前N段分享到微信客户端
+    if (shareMobile !== '') {
+        $("#shareMobile").val(shareMobile);
+    }
+}
+
+
+////定义：函数highchartsCheck————学习进度：未看
+///功能：检查文章中是否有High Charts代码
+function highchartsCheck(storyBody) {
+    if (storyBody.indexOf('highcharts')>=0) {
+        if ($('.highcharts[data-chart-id]').length>0) {
+            var gChartId = $('.highcharts[data-chart-id]').attr('data-chart-id') || '';
+            if (gChartId !== '') {
+                (function (d) {
+                    var js;
+                    var s = d.getElementsByTagName('script')[0];
+                    var h = '';
+                    js = d.createElement('script');
+                    js.async = true;
+                    if (typeof Highcharts === 'object') {
+                        h = '&highcharts=hide';
+                    }
+                    js.src = '/index.php/ft/interactive/' + gChartId + '?type=js' + h + '&' + new Date().getTime();
+                    s.parentNode.insertBefore(js, s);
+                })(window.document);
+            }
+        }
+    }
+}
+
+/*********复杂逻辑函数***********/
+////定义：函数displaystory
+///功能：展示文章----待细研究，待自己写一遍
+///依赖关系：
+//依赖函数：addStoryScroller、saveImgSize、removeTag、setFontSize、loadcomment、getvalue、showchannel(相互调用啊！！！待研究退出机制)、handlelinks、removeBrokenIMG、showAppImage、updateShare、freezeCheck、highchartsCheck
+/*
+function displaystory(theid, language) {
+    console.log("start displaystory");
+    var columnintro = ''; 
+    var storyimage;
+    var allId = allstories[theid];
+    var allIdColumnIfoHeadline;
+    var byline;
+    var storyHeadline = '';
+    var contentnumber;
+    var i;
+    var storyTag = allId.tag||'';
+    var tagdata;
+    var ct;
+    var leftc;
+    var rightc;
+    var firstChild;
+    var myfont;
+    var sinten;
+    var k='';
+    var l='';
+    var d='';
+    var e;
+    var ceDiff;
+    var ua = navigator.userAgent || navigator.vendor || "";
+    var eLen;
+    var cLen;
+    var eText;
+    var cText;
+    var relatedStory="";
+    var cbodyCount = 0;
+    var ebodyCount = 0;
+    var cbodyTotal = 0;
+    var ebodyTotal = 0;
+    var shareSource = '';
+    var storyArea = allId.area || '';
+    var storyTopics = allId.topic || '';
+    var storyIndustry = allId.industry || '';
+    var storyGenre = allId.genre || '';
+    var eauthor = allId.eauthor || 'FTChinese';
+    var insertAd = 3;
+    langmode = language;
+    //文章的scroller
+    addStoryScroller();//待写
+    setCookie('langmode', language, '', '/');
+    $('#storyview .storydate').html(unixtochinese(allId.last_publish_time||allId.fileupdatetime, 1));
+    $(".story[storyid*='" + theid + "']").addClass('visited');
+    if (/<p>[_\-]+<\/p>/gi.test(allId.cbody)) {allId.cbody = allId.cbody.replace(/<p>[_\-]+<\/p>/gi,"<hr/><br/>");}
+
+    if (allId.columninfo && allId.columninfo.piclink && allId.columninfo.description) {
+        allIdColumnIfoHeadline = allId.columninfo.headline.replace(/《/g, '').replace(/》/g, '');
+        columnintro = '<div class=channel url="/index.php/ft/column/' 
+            + allId.column + '?i=2" title="' 
+            + allIdColumnIfoHeadline + '"><div class="section">' 
+            + allIdColumnIfoHeadline + '</div><div class="oneStory more first-child"><img src=' 
+            + allId.columninfo.piclink + ' class="leftimage" height=84>' 
+            + allId.columninfo.description + '</div></div>';
+    } else {
+        columnintro = '';
+    }
+
+    $('#columnintro, #columnintro1').html(columnintro);
+    $('.storyTag').remove();
+
+
+    if ((allId.story_pic.smallbutton || allId.story_pic.other) && storyTag.indexOf('插图') >= 0) {
+        storyimage = '<div class="coverIMG"><figure><img src="'+(allId.story_pic.smallbutton || allId.story_pic.other)+'"></figure></div>';
+    } else if (allId.story_pic.smallbutton || allId.story_pic.other) {
+        storyimage = '<div class="bigIMG image"><figure><img class="app-image" src="'+saveImgSize((allId.story_pic.smallbutton || allId.story_pic.other))+'"></figure></div>';
+    } else if (allId.story_pic.cover) {
+        storyimage = '<div class="coverIMG image"><figure><img class="app-image" src="'+saveImgSize(allId.story_pic.cover)+'"></figure></div>';
+    } else if (allId.story_pic.skyline) {
+        storyimage = '<div class="leftimage image" style="width:130px;height:84px;"><figure><img src="'+allId.story_pic.skyline+'" class="app-image"></figure></div>';
+    } else if (allId.story_pic.bigbutton) {
+        storyimage = '<div class="leftimage image" style="width:167px;height:96px;"><figure><img src="'+saveImgSize(allId.story_pic.bigbutton)+'" class="app-image"></figure></div>';
+    } else {
+        storyimage = '';
+    }
+
+    $('.cebutton,.enbutton,.chbutton').removeClass('nowreading');
+    $('#storyview').removeClass('ceview enview');
+
+    if (language == 'en' && allId.ebody && allId.ebody.length > 30) {
+        $('#storyview').addClass('enview').find('.storytitle').html(allId.eheadline);
+
+        byline = (allstories[theid].ebyline_description || 'By') + ' ' + eauthor;
+
+        $('#storyview .storybody').html(storyimage).append(allId.ebody);
+        $('.enbutton').addClass('nowreading');
+        storyHeadline = allId.eheadline;
+    } else if (language == 'ce' && allId.ebody && allId.ebody.length > 30) {
+        $('#storyview').addClass('ceview').find('.storytitle').html(allId.eheadline).append('<br>' + allId.cheadline);
+
+        byline = (allId.cbyline_description||'').replace(/作者[：:]/g, '') + ' ' + (allId.cauthor||'').replace(/,/g, '、') + ' ' + (allId.cbyline_status||'');
+
+        $('#storyview .storybody').html('');
+    
+        eText = allId.ebody.match(/<p>.*<\/p>/gi);
+        cText = allId.cbody.match(/<p>.*<\/p>/gi);
+        eLen = (eText !== null) ? eText.length : 0;
+        cLen = (cText !== null) ? cText.length : 0;
+        contentnumber = Math.max(eLen, cLen);
+        ct = '';
+        for (i = 0; i < contentnumber; i++) {
+            leftc = eText[ebodyCount] || '';
+            
+            leftc = removeTag(leftc);
+            if (leftc.length <= 2) { //short code means no need to display
+                ebodyCount += 1;
+                leftc = eText[ebodyCount] || '';
+                leftc = removeTag(leftc);
+            }
+            ebodyTotal += 1; 
+            ebodyCount += 1;
+            rightc = cText[cbodyCount] || '';
+            rightc = removeTag(rightc);
+            if (rightc.length <= 2) { //short code means no need to display
+                cbodyCount += 1;
+                rightc = cText[cbodyCount] || '';
+                rightc = removeTag(rightc);
+            }
+            cbodyTotal += 1; 
+            cbodyCount += 1;
+            ct += '<div class=ebodyt title="'+ ebodyTotal +'">'+ leftc + '</div><div class=cbodyt title="'+ cbodyTotal +'">' + rightc + '</div><div class=clearfloat></div>';
+            //console.log ("i: " + i + " ebodyTotal: " + ebodyTotal + ' cbodyTotal: ' + cbodyTotal);
+        }
+        ceDiff = cbodyTotal - ebodyTotal;
+        $('#storyview .storybody').html('<div class=ce>' + ct + '</div>');
+        $('#storyview .storybody').prepend('<div id="ceTwoColumn" class=centerButton><button class="ui-light-btn">中英文并排</button></div>');
+        $("#ceTwoColumn").unbind().bind("click",function(){
+            $("div.ebodyt").css({"float":"left","width":"48%","overflow":"hidden"});
+            $("div.cbodyt").css({"float":"right","width":"48%","overflow":"hidden"});
+            $(this).hide();
+        });
+        if (ceDiff>2 || ceDiff<0) {
+            $('#storyview .storybody').prepend('<div class="highlight">亲爱的读者，这篇文章的中英文段落不匹配，可能是因为中文翻译有删节，或是因为英文原文的排版有问题。敬请谅解，或<b><a id="complain-english">发邮件提醒编辑！</a></b></div>');
+            $("#complain-english").attr("href","mailto:customer.service@ftchinese.com?subject=Billigual Article on FTC&body=Dear Editor, %0D%0A%0D%0AGreatings! %0D%0A%0D%0AI noticed that English and Chinese translation are not aligned properly for an article. Could you kindly make adjustment in your CMS system? And thanks a lot for your attention! %0D%0A%0D%0A" + allId.eheadline + "%0D%0A%0D%0Ahttp://www.ftchinese.com/story/" + allId.id +"/ce%0D%0A%0D%0ABest Regards,%0D%0A%0D%0AA Reader%0D%0A%0D%0A%0D%0A%0D%0A    ====%0A%0D%0A%0D%0ATechnical information:%0D%0A%0D%0AUser-agent: "+ua+"%0D%0A%0D%0AResources version: "+_currentVersion+"%0D%0A%0D%0AScreen Mode: "+$(window).width()+"X"+$(window).height()+"%0D%0A%0D%0Amy URL: " + location.href);
+        }
+        $('.cebutton').addClass('nowreading');
+        storyHeadline = allId.eheadline;
+    } else {
+        $('#storyview').removeClass('ceview').find('.storytitle').html(allId.cheadline);
+        byline = (allId.cbyline_description||'').replace(/作者[：:]/g, '') + ' ' + (allId.cauthor||'').replace(/,/g, '、') + ' ' + (allId.cbyline_status || '');
+        //alert (allId.cbody);
+        $('#storyview .storybody').html(storyimage).append(allId.cbody.replace(/<p>(<div.*<\/div>)<\/p>/g,'$1'));
+        if (allId.cbody.indexOf("inlinevideo")>=0) {
+            $('#storyview .storybody .inlinevideo').each(function (){
+                // if FT Scroller is used, add an overlay to the iframe
+                // so that the screen can scroller
+                var touchOverlay = '';
+                var touchClickClass = '';
+                var videoContainerId = '';
+                if ($(this).attr('vid')!=='') {
+                    videoContainerId = 'story-vid-' + $(this).attr('vid');
+                    if (useFTScroller === 1) {
+                        touchOverlay = '<div target=_blank class="o-touch-overlay"></div>';
+                        touchClickClass = 'inline-video-container';
+                    }
+                    $(this).addClass('o-responsive-video-container').addClass(touchClickClass).html('<div class="o-responsive-video-wrapper-outer"><div class="o-responsive-video-wrapper-inner"><iframe height="100%" width="100%" src="' + gWebRoot + '/index.php/ft/video/' + $(this).attr('vid') + '?i=1&w=100%&h=100%&autostart=false" scrolling="no" frameborder="0" allowfullscreen=""></iframe></div>' + touchOverlay + '</div><a class="o-responsive-video-caption" id="'+ videoContainerId +'">'+$(this).attr('title')+'</a></div>');
+                }
+            });
+        }
+        if (allId.ebody && allId.ebody.length > 30) {$('.chbutton').addClass('nowreading');} else {$('.cebutton,.enbutton,.chbutton').addClass('nowreading');}
+        storyHeadline = allId.cheadline;
+    }
+    if ($('#storyview .storybody p').eq(insertAd - 1).find('b').length > 0) {
+        insertAd = 4;
+    }
+    $('<div class="adiframe mpu-phone for-phone" type="250" frame="ad300x250-story"></div>').insertBefore($('#storyview .storybody p').eq(insertAd));
+    if (byline.replace(/ /g,"")==""){byline = "FT中文网";}
+    storyTag = ',' + storyTag + ',';
+    storyTag = storyTag.replace(/，/g, ',')
+                        .replace(/,白底,/g, ',')
+                        .replace(/,靠右,/g, ',')
+                        .replace(/,置顶,/g, ',')
+                        .replace(/,单页,/g, ',')
+                        .replace(/,沉底,/g, ',')
+                        .replace(/,资料,/g, ',')
+                        .replace(/,突发,/g, ',')
+                        .replace(/,插图,/g, ',')
+                        .replace(/,透明,/g, ',')
+                        .replace(/,+/g, ',')
+                        .replace(/,$/g, '')
+                        .replace(/^,/g, '');
+    gTagData = storyTag + ',' + storyArea + ',' + storyTopics + ',' + storyGenre + ',' + storyIndustry;
+    gTagData = gTagData.replace(/，/g, ',')
+                        .replace(/,+/g, ',')
+                        .replace(/,$/g, '')
+                        .replace(/^,/g, '');
+    gTagData = gTagData.split(',');
+    //console.log (gTagData);
+    tagdata = storyTag.split(',');
+
+    if (tagdata.indexOf("VFTT")>=0 && thed <= '20150115') {
+        gSpecial = true;
+    } else {
+        gSpecial = false;
+    }
+    storyTag = '';
+    for (i = 0; i < tagdata.length; i++) {
+        if (i==0) {
+            firstChild=" first-child";
+        } else {
+            firstChild="";
+        }
+        storyTag += '<a class="oneTag oneStory more'+firstChild+'" onclick=\'showchannel("/index.php/ft/tag/' + tagdata[i] + '?i=2","' + tagdata[i] + '")\'>' + tagdata[i] + '</a>';
+    }
+    storyTag = storyTag.replace(/，$/g, '');
+    $('#storyview .storymore').after('<div class="storyTag"><a class=section><span>相关话题</span></a><div class=container>'+ storyTag +'</div></div>');
+
+
+
+    $('#storyview .storybyline').html(byline);
+    document.getElementById('header-title').innerHTML = storyHeadline;
+
+    //在Story列表中将当前文章标红
+    $('#onedaylist div.story').each(function() {
+        var it = $(this);
+        if (it.attr('storyid') == theid) {
+            it.addClass('highlight');
+        } else {
+            it.removeClass('highlight');
+        }
+    });
+
+
+    //检查字体大小
+    myfont = getvalue('myfont');
+    if (myfont && myfont >= 0) {setFontSize(myfont);}
+
+    //加载文章的相关评论
+    $('#storyview .allcomments').remove();
+    $('#storyview .readerCommentTitle').after('<div id=allcomments class="allcomments container"></div>');
+    loadcomment(theid, 'allcomments', 'story');
+
+    //记录文章页面PV
+    //httpspv(gDeviceType + '/storypage/'+ theid);//ga的先注释掉
+    
+    //记录文章被阅读
+    //recordAction('/phone/storypage/'+ theid);ga的先注释掉
+
+    //文章页的链接
+    $('#storyview .channel').unbind().bind("click",function() { showchannel($(this).attr('url'), $(this).attr('title'));});
+
+    //相关文章
+    $("#storyview .storymore").empty();
+    if (allId.relative_story && allId.relative_story.length>0) {
+        $.each(allId.relative_story, function(entryIndex, entry) {
+            var firstChildClass =  (entryIndex === 0) ? " first-child" : "";
+            relatedStory = relatedStory +'<div storyid="'+entry.id+'" class="more oneStory story' +firstChildClass +'">'+entry.cheadline+'</div>';
+        });
+        relatedStory = '<a class=section><span>相关文章</span></a><div class="container" id="relatedstory"></div>' + relatedStory; 
+        $("#storyview .storymore").append(relatedStory);
+        $("#storyview .story").unbind().bind("click",function(){
+            var storyid = $(this).attr('storyid');
+            readstory(storyid);
+        });
+    }
+    
+    //文章中的链接
+    handlelinks();
+    
+
+    //文章推荐
+    if (allId.columninfo && allId.columninfo.piclink && allId.columninfo.description) {
+        allIdColumnIfoHeadline = allId.columninfo.headline.replace(/《/g, '').replace(/》/g, '');
+        columnintro = '<div class=channel url="/index.php/ft/column/' 
+            + allId.column + '?i=2" title="' 
+            + allIdColumnIfoHeadline + '"><div class="topmargin righttitles">' 
+            + allIdColumnIfoHeadline + '</div><div style="margin-bottom:15px;"><img src=' 
+            + allId.columninfo.piclink + ' class="leftimage touming" height=84>' 
+            + allId.columninfo.description + '</div></div>';
+    }
+    
+
+    removeBrokenIMG();
+    showAppImage('storyview');
+    //更新分享链接
+    sinten = "";
+    if (allId.elongleadbody && allId.elongleadbody.length>=10) {
+        sinten="【" + allId.cheadline + "】" + allId.elongleadbody;
+    } else if (allId.clongleadbody && allId.clongleadbody.length>=10) {
+        sinten="【" + allId.cheadline + "】" + allId.clongleadbody;
+    } else if (allId.cskylinetext && allId.cskylinetext.length>=5) {
+        sinten="【" + allId.cheadline + "】" + allId.cskylinetext;
+    } else if (allId.cshortleadbody && allId.cshortleadbody.length>=5) {
+        sinten="【" + allId.cheadline + "】" + allId.cshortleadbody;
+    } else {
+        sinten="【" + allId.cheadline + "】";
+    }
+
+    
+    if (gIsInSWIFT === true) {
+        l = allId.story_pic.icon || allId.story_pic.skyline || allId.story_pic.bigbutton || allId.story_pic.cover || allId.story_pic.smallbutton || allId.story_pic.other || gIconImage;
+    } else {
+        l = allId.story_pic.icon || allId.story_pic.skyline || gIconImage;
+    }
+    if (language !== 'en') {
+        d = $("#bodytext p,#bodytext .cbodyt").eq(0).text();
+    }
+    k = '';
+    if (language !== 'en') {
+        k = $("#storyview .storybyline").html() || "FT中文网";
+        $("#bodytext p,#bodytext .cbodyt").each(function(index){
+            if (index<=2) {
+                k = k + "\r\n\r\n" + $(this).html();
+            }
+        });
+        if (osVersion.indexOf("nothing")>=0) {
+            k = "【" + allId.cheadline + "】\r\n\r\n" + k + "\r\n\r\n点击阅读全文：\r\n\r\nhttp://www.ftchinese.com/story/"+allId.id+"#ccode=2G168002\r\n\r\n或访问app.ftchinese.com下载FT中文网移动应用，阅读更多精彩文章";
+            //$("#shareMobile").val();
+        } else {
+            k = "【" + allId.cheadline + "】\r\n"+k+"\r\n\r\n......  \r\n继续阅读请点击链接：\r\nhttp://www.ftchinese.com/story/"+allId.id+"#ccode=2G168002";
+        }
+    }
+
+    updateShare('http://www.ftchinese.com', 'http://www.ftchinese.com', '/story/', allId.id, allId.cheadline, sinten, l, d, k);
+    //Sticky Right Rail
+    freezeCheck();
+    //Display HighCharts in Article
+    //Caution: if the code is writen like the following
+    //it'll break the JS when compiled into inline JS
+    //causing the android app to break on starting
+    highchartsCheck(allId.cbody);
+
+    if (nativeVerticalScroll === true) {
+        document.getElementById('storyScroller').scrollTop = 0;
+    } 
+}
+*/
+
 ////定义：函数readstory
 ///依赖关系：
-//依赖全局变量：useFTScroller、scrollHeight、pageStarted、_popstate、readingid
+//依赖全局变量：useFTScroller、scrollHeight、pageStarted、_popstate、readingid、gCurrentStoryId、allstories、storyScroller
+//依赖函数：displaystory、pauseallvideo
+/*
 function readstory(theid,theHeadline){
+    console.log("start readstory");
     var h,
         theurl,
         backto,
@@ -543,17 +989,91 @@ function readstory(theid,theHeadline){
         gNowView = allViewsId;
     }
 
-    if(allViewsId!='story')
+    backto = (gNowView == 'channelview'||gNowView == 'storyview')?'后退':'返回首页';//如果gNowView为channelview或storyview,则backto为'后退',否则为'返回首页'
+
+    sv.find('.backto').html(backto);//疑问：这句话好像没什么用，因为并没有'.backto'这个样式
+
+    sv.find('.storydate,.storytitle,.storybyline,.storymore,.storyTag .container').html('');//清空这些文章时间、文章标题、文章作者说明、相关文章、相关话题
+
+    $('#allcomments,#columnintro').html('');//清空这两个，待研究：分别是哪块，还没找清楚
+
+    $('#cstoryid').val(theid);//提交评论的评论表单，里面关于storyid的不可见input自动填充storyid
+
+    document.body.className='storyview';
+    gNowView='storyview';
+
+    gCurrentStoryId = theid;
+
+    setTimeout(function(){
+        if(useFTScroller===0){//如果没有用FTScroller
+            window.scrollTo(0,0);
+        }else if(nativeVerticalScroll===true){//如果用了原生Scoller??
+            document.getElementById('storyScroller').scrollTop=0;
+        }//疑问：以上两种条件有什么区别？即没有用FTScroller和用了原生Scroller不是一样的吗？？
+
+        if(allstories[theid]){//如果文章数组里面存在这个id，则展示文章
+            displaystory(theid,langmode);//该函数待写
+        }else{
+            if(typeof theHeadline==='string'){
+                sv.find('.storytitle').html(theHeadline);
+            }
+
+            if(typeof storyScroller==='object'){
+                try{
+                    storyScroller.scrollTo(0,0);
+                }catch(ignore){
+                    sv.find('.storybody').html('wrong scroller');//sv.find('.storybody')是文章正文部分
+                }
+            }
+
+            var k='<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>';
+            k = k + k + k;
+            k = k + k + k;
+            k = k + k + k;
+            k = k + k + k;//待修改：这块儿写的好无语啊。。。应该有更好的写法
+
+            ///获取文章正文前，先在正文部分填上“正在读取文章数据...”
+            sv.find('.storybody').html('<div class="loader-container" style="height:1000px;"><div class="loader">正在读取文章数据...</div></div>'+k);
+
+            ///发起获取文章数据的GET请求
+            $.ajax({
+                method:'GET',
+                url:'index.php/jsapi/get_story_more_info/'+theid+'?'+themi,
+            }).done(function(data,textStatus){
+                jsondata=$.parseJSON(data);
+                myid=jsondata.id;
+                allstories[myid]=jsondata;
+
+                if(gCurrentStoryId===myid){//再检查一遍传入的storyid和请求获取的数据中的storyid是否一致，一致的话再展示文章
+                    displaystory(myid,langmode);
+                }
+            }).fail(function(jqXHR){
+                if(gCurrentStoryId===theid){
+                    sv.find('.storybody').html('<div class="loader-container"><div class="highlight">获取文章失败!</div><div class="standalonebutton"><button class="ui-light-btn" id="reload-story">重试</button></div></div>'+k);
+                    $('#reload-story').unbind().bind('click',function(){
+                        sv.find('.storybody').html('<div class="loader-container">重新加载文章...</div>');
+                        setTimeout(function(){
+                            readstory(theid,theHeadline);
+                        },1000);
+                    });
+                }
+            });
+        }
+
+    },10);
+    pauseallvideo();//暂停所有video
 
 }
+*/
 ///说明：
 //1.:visible是可见性过滤选择器，包括由display和visibility控制的元素
 
 
+/************阅读文章系列:end************/
 
 
 
-/***************界面操作*************/
+/***************界面操作系列：start*************/
 
 ////定义：函数getURLParameter(url,name)
 ///功能：获取指定url（eurl）中的指定参数名(name)的参数值。
@@ -1042,10 +1562,6 @@ function openSearch(){
 }
 
 
-
-
-
-
 ////定义函数：gotowebapp(url)
 ///功能:跳转至指定url
 ///参数：url
@@ -1060,9 +1576,9 @@ function gotowebapp(url) {
     }
 }
 
+/***************界面操作系列：end***************/
 
-
-/*************滚动处理******************/
+/*************滚动处理系列:start******************/
 ////定义：函数homeScrollEvent
 ///功能：重新加载首页首屏部分的广告
 ///依赖关系：
@@ -1234,10 +1750,11 @@ function navScroller($currentSlide){//实参为:$("#fullbody")
 
 
 
+/*************滚动处理系列:end******************/
 
 
 
-/*************文章获取系列*****************/
+/*************文章获取系列:start*****************/
 ////定义：函数filloneday(onedaydate)
 ///功能：填充设置弹窗的右下角"版本"部分的内容
 ///参数：onedaydate
@@ -1551,7 +2068,7 @@ function showAppImage(ele){//实参为'fullbody'
     })
 }
 
-
+/***************启动主页:start*****************/
 
 ////定义函数：fillContent
 ///功能：填充主页内容
@@ -1559,7 +2076,8 @@ function showAppImage(ele){//实参为'fullbody'
 //依赖函数:filloneday、histback、showchannel、gotowebapp、addHomeScroller
 //依赖全局变量:uaString
 function fillContent(loadType){//4
-    console.log("start fillContent");
+    console.log(funcOrder+":start fillContent");
+    funcOrder++;
     var searchnote = '输入关键字查找文章',
         mpdata,
         hcdata,
@@ -1609,7 +2127,7 @@ function fillContent(loadType){//4
     ///创建主页上部导航条scroller
     navScroller($("#fullbody"));
 
-    ///关于首页垂直滑动的其他额外处理:正常情况是useFTScroller为0，nativeVerticalScroll位false,不执行以下两个情况的处理
+    ///关于首页垂直滑动的其他额外处理:正常情况是useFTScroller为0，nativeVerticalScroll为false,不执行以下两个情况的处理
     if(useFTScroller==1&&nativeVerticalScroll===false){//当满足这两个条件时，整个主页都不能上下滑动
         document.getElementById('fullbodycontainer').addEventListener('touchmove',function(e){
             e.preventDefault();
@@ -1662,14 +2180,15 @@ function fillContent(loadType){//4
 
 
 ////定义：函数loadTohome(data,loadType)
-///功能：准备好主页内容，即完成主页内容的填充及其他处理
+///功能：填充好主页内容，并完成并凑主页的其他处理
 ///参数：data,loadType
 ///返回：无
 ///依赖关系：
 //依赖函数:fillContent、addstoryclick、removeBrokenIMG、showAppImage
 //依赖全局变量:uaString
 function loadToHome(data,loadType){//3
-    console.log("start loadTohome");
+    console.log(funcOrder+":start loadTohome");
+    funcOrder++;
     ///填充主页文章内容数据
     $('#homecontent').html(data);
 
@@ -1703,7 +2222,8 @@ function loadToHome(data,loadType){//3
 ///依赖关系：
 //依赖函数:updateStartStatus、loadToHome、showDateStamp、startFromOffline
 function loadHomePage(loadType){//2
-    console.log("start loadHomePage");
+    console.log(funcOrder+":start loadHomePage");
+    funcOrder++;
     var dateDescription='',
         dateStamp='',
         homePageRequest=new Date().getTime(),
@@ -1735,13 +2255,13 @@ function loadHomePage(loadType){//2
     }
 
     ///ga先略
-
     requests.push(
         $.ajax({
             url:gStartPageTemplate + themi +dateStamp,///index.php/ft/channel/phonetemplate.html?channel=nexthome&+20160819153600+'',
             success:function(data){
                 console.log("success");
-                console.log("url: "+gStartPageTemplate + themi +dateStamp);
+                console.log("url: "+gStartPageTemplate + themi +dateStamp);//"url:api/homecontent.html?20160912141300",完整路径也就是"http://localhost:8000/api/homecontent.html?20160912141300"
+
                 var homePageSuccess=0;
                 var timeSpent=homePageSuccess-homePageRequest;
 
@@ -1752,7 +2272,7 @@ function loadHomePage(loadType){//2
                 setTimeout(function(){
                     connectInternet="unknown";
                 },300000);//过300s即5min以后，改变connectInternet值
-                console.log("data: "+data)
+                console.log("data: "+data)//这data就是主页的文章数据html
                 loadToHome(data,loadType);//3
                 showDateStamp();
 
@@ -1832,11 +2352,14 @@ function loadHomePage(loadType){//2
 
 
 ////定义：函数startpage()
+///功能：程序启动入口函数
 ///依赖关系:
 //依赖全局变量：gStartStatus、username、langmode、gNowView、gConnectionType
 //依赖函数：updateTimeStamp、getpvalue、setCookie、getCookie、isOnline、downloadStories
 function startpage(){//1
-    console.log("start startpage");
+    console.log(funcOrder+":start startpage");
+    funcOrder++;
+
     var savedhomepage;
 
     updateTimeStamp();//更新时间戳
@@ -1945,5 +2468,5 @@ function startpage(){//1
 
  
 }
-
+/**************启动主页：end******************/
 

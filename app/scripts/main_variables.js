@@ -1,3 +1,8 @@
+////定义：全局变量
+///功能：追踪逻辑大函数执行的顺序
+var funcOrder=0;//每进入一个逻辑大函数内部,其就+1,这就记录下每个逻辑大函数执行顺序了。
+
+
 ////定义：全局变量_currentVersion
 ///功能：设置当前版本号
 var _currentVersion = 1117;
@@ -283,8 +288,11 @@ var gConnectionType="";
 ///存储发出请求的时间
 var requestTime;
 
-
-var gStartPageTemplate; 
+///存储启动首页时首页文章数据的html模板文件的路径
+var gStartPageTemplate=""; //修改：初始化为一个空字符串，原文没有初始化
 
 ///存储从url提取的信息组成的数组
 var gTagData=[];
+
+///存储当前的storyid
+var gCurrentStoryId='';
